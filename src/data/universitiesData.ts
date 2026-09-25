@@ -1,3 +1,14 @@
+export interface UniversityCourseOffering {
+  name: string;
+  faculty: 'Health Sciences' | 'Engineering' | 'Computing' | 'Law & Arts' | 'Management & Social' | 'Sciences';
+  utmeMin: number;
+  aggregate: number;
+  requiredSubjectIds: string[];
+  requiredSubjectNames: string[];
+  competitiveness: 'Extremely High' | 'High' | 'Moderate' | 'Standard';
+  careerPath: string;
+}
+
 export interface UniversityData {
   id: string;
   name: string;
@@ -477,3 +488,192 @@ export const UNIVERSITIES_DIRECTORY: UniversityData[] = [
     academicCalendar: 'Fast-Track',
   },
 ];
+
+/**
+ * Maps Course Name to Official Faculty, Required JAMB 4-Subject Combination & Meta
+ */
+export const COURSE_METADATA_REGISTRY: Record<
+  string,
+  {
+    faculty: 'Health Sciences' | 'Engineering' | 'Computing' | 'Law & Arts' | 'Management & Social' | 'Sciences';
+    requiredSubjectIds: string[];
+    requiredSubjectNames: string[];
+    competitiveness: 'Extremely High' | 'High' | 'Moderate' | 'Standard';
+    careerPath: string;
+  }
+> = {
+  'Medicine & Surgery': {
+    faculty: 'Health Sciences',
+    requiredSubjectIds: ['english', 'biology', 'chemistry', 'physics'],
+    requiredSubjectNames: ['Use of English', 'Biology', 'Chemistry', 'Physics'],
+    competitiveness: 'Extremely High',
+    careerPath: 'Consultant Physician, Neurosurgeon, Clinical Researcher',
+  },
+  'Pharmacy': {
+    faculty: 'Health Sciences',
+    requiredSubjectIds: ['english', 'biology', 'chemistry', 'physics'],
+    requiredSubjectNames: ['Use of English', 'Biology', 'Chemistry', 'Physics'],
+    competitiveness: 'High',
+    careerPath: 'Clinical Pharmacist, Drug Formulation Scientist, Pharmacologist',
+  },
+  'Nursing Science': {
+    faculty: 'Health Sciences',
+    requiredSubjectIds: ['english', 'biology', 'chemistry', 'physics'],
+    requiredSubjectNames: ['Use of English', 'Biology', 'Chemistry', 'Physics'],
+    competitiveness: 'High',
+    careerPath: 'Registered Nurse (RN), Critical Care Specialist, Nurse Practitioner',
+  },
+  'Dentistry': {
+    faculty: 'Health Sciences',
+    requiredSubjectIds: ['english', 'biology', 'chemistry', 'physics'],
+    requiredSubjectNames: ['Use of English', 'Biology', 'Chemistry', 'Physics'],
+    competitiveness: 'High',
+    careerPath: 'Dental Surgeon, Orthodontist, Maxillofacial Specialist',
+  },
+  'Law': {
+    faculty: 'Law & Arts',
+    requiredSubjectIds: ['english', 'literature', 'government', 'crs'],
+    requiredSubjectNames: ['Use of English', 'Literature in English', 'Government', 'C.R.S.'],
+    competitiveness: 'Extremely High',
+    careerPath: 'Corporate Attorney, High Court Judge, Legal Counsel, SAN',
+  },
+  'Computer Science': {
+    faculty: 'Computing',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Software Architect, Machine Learning Engineer, Systems Analyst',
+  },
+  'Software Engineering': {
+    faculty: 'Computing',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Full-Stack Engineer, Cloud DevOps Lead, Mobile Architect',
+  },
+  'Cybersecurity': {
+    faculty: 'Computing',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Information Security Lead, Ethical Hacker, SOC Analyst',
+  },
+  'Mechanical Engineering': {
+    faculty: 'Engineering',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Robotics Specialist, Automotive Engineer, Manufacturing Lead',
+  },
+  'Electrical Engineering': {
+    faculty: 'Engineering',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Power Systems Engineer, Embedded Hardware Developer, Telecom Lead',
+  },
+  'Petroleum Engineering': {
+    faculty: 'Engineering',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Reservoir Engineer, Drilling Specialist, Offshore Energy Consultant',
+  },
+  'Civil Engineering': {
+    faculty: 'Engineering',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+    competitiveness: 'High',
+    careerPath: 'Structural Consultant, Project Manager, Infrastructure Engineer',
+  },
+  'Accounting': {
+    faculty: 'Management & Social',
+    requiredSubjectIds: ['english', 'maths', 'economics', 'commerce'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Economics', 'Commerce'],
+    competitiveness: 'Moderate',
+    careerPath: 'Chartered Accountant (ICAN/ACCA), Forensic Auditor, CFO',
+  },
+  'Economics': {
+    faculty: 'Management & Social',
+    requiredSubjectIds: ['english', 'maths', 'economics', 'government'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Economics', 'Government'],
+    competitiveness: 'Moderate',
+    careerPath: 'Financial Quantitative Analyst, Economic Policy Strategist, Banker',
+  },
+  'Mass Communication': {
+    faculty: 'Law & Arts',
+    requiredSubjectIds: ['english', 'literature', 'government', 'economics'],
+    requiredSubjectNames: ['Use of English', 'Literature in English', 'Government', 'Economics'],
+    competitiveness: 'Moderate',
+    careerPath: 'Broadcaster, Investigative Journalist, PR Strategist, Digital Director',
+  },
+  'Architecture': {
+    faculty: 'Engineering',
+    requiredSubjectIds: ['english', 'maths', 'physics', 'geography'],
+    requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Geography'],
+    competitiveness: 'High',
+    careerPath: 'Licensed Architect (ARCON), Urban Planner, Spatial Designer',
+  },
+  'Agricultural Science': {
+    faculty: 'Sciences',
+    requiredSubjectIds: ['english', 'agric', 'chemistry', 'biology'],
+    requiredSubjectNames: ['Use of English', 'Agricultural Science', 'Chemistry', 'Biology'],
+    competitiveness: 'Standard',
+    careerPath: 'Agribusiness Entrepreneur, Agronomist, Food Systems Specialist',
+  },
+};
+
+/**
+ * Returns complete course offerings for any selected university
+ */
+export function getCoursesForUniversity(uni: UniversityData): UniversityCourseOffering[] {
+  const result: UniversityCourseOffering[] = [];
+
+  // Iterate over courseCutoffs defined for this university
+  Object.entries(uni.courseCutoffs).forEach(([courseName, cutoff]) => {
+    const meta = COURSE_METADATA_REGISTRY[courseName] || {
+      faculty: 'Sciences',
+      requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+      requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+      competitiveness: 'Moderate',
+      careerPath: 'Specialized Professional Degree',
+    };
+
+    result.push({
+      name: courseName,
+      faculty: meta.faculty,
+      utmeMin: cutoff.utmeMin || uni.generalCutOff,
+      aggregate: cutoff.aggregate,
+      requiredSubjectIds: meta.requiredSubjectIds,
+      requiredSubjectNames: meta.requiredSubjectNames,
+      competitiveness: meta.competitiveness,
+      careerPath: meta.careerPath,
+    });
+  });
+
+  // If university has popular courses not in cutoffs, add them too
+  uni.popularCourses.forEach((cName) => {
+    if (!result.some((r) => r.name.toLowerCase() === cName.toLowerCase())) {
+      const meta = COURSE_METADATA_REGISTRY[cName] || {
+        faculty: 'Sciences',
+        requiredSubjectIds: ['english', 'maths', 'physics', 'chemistry'],
+        requiredSubjectNames: ['Use of English', 'Mathematics', 'Physics', 'Chemistry'],
+        competitiveness: 'Moderate',
+        careerPath: 'Specialized Professional Track',
+      };
+
+      result.push({
+        name: cName,
+        faculty: meta.faculty,
+        utmeMin: uni.generalCutOff,
+        aggregate: 70.0,
+        requiredSubjectIds: meta.requiredSubjectIds,
+        requiredSubjectNames: meta.requiredSubjectNames,
+        competitiveness: meta.competitiveness,
+        careerPath: meta.careerPath,
+      });
+    }
+  });
+
+  return result;
+}

@@ -239,40 +239,27 @@ export default function ScholarApp() {
 
           {currentScreen === 'subjects' && (
             <div className="flex flex-col flex-1">
-              {/* Minimalist UTME CBT Mock Card */}
-              <div className="px-4 pt-3 pb-1">
-                <button
-                  onClick={() => {
-                    playTapSound();
-                    handleNavigate('mock');
-                  }}
-                  className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#181a1c] border border-stone-200/80 dark:border-stone-800 shadow-2xs hover:border-stone-400 dark:hover:border-stone-600 transition-all group active:scale-[0.99] text-left cursor-pointer"
+              {/* Minimalist JAMB Mock Exam Card */}
+              <div className="px-4 pt-4 pb-1">
+                <Link
+                  href="/mock"
+                  className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-[#1a1c1e] border border-[#e5e5e3] dark:border-[#282b2e] shadow-xs hover:border-[#1a1c1c] dark:hover:border-white transition-all group active:scale-[0.99]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1a1c1c] dark:bg-white text-white dark:text-[#121314] shrink-0">
                       <Timer className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-serif text-sm sm:text-base font-bold text-stone-900 dark:text-white leading-tight">
-                          UTME CBT
-                        </h3>
-                        <span className="inline-flex items-center justify-center h-4.5 px-2.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[9px] font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/60">
-                          200Q · 120M
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="inline-flex items-center justify-center h-4 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[9px] font-mono text-stone-500 dark:text-stone-400 border border-stone-200/60 dark:border-stone-700/60">
-                          4 Subjects (50Q Each)
-                        </span>
-                        <span className="inline-flex items-center justify-center h-4 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[9px] font-mono text-stone-500 dark:text-stone-400 border border-stone-200/60 dark:border-stone-700/60">
-                          Strict Tab Locked
-                        </span>
-                      </div>
+                      <h3 className="font-editorial text-base font-semibold text-[#1a1c1c] dark:text-white leading-tight">
+                        JAMB Mock Exam
+                      </h3>
+                      <p className="text-xs text-[#747878] dark:text-[#9ca3af] mt-0.5">
+                        120 Questions · 120 Minutes · Timed Exam
+                      </p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-stone-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </button>
+                  <ArrowRight className="w-4 h-4 text-[#747878] dark:text-[#9ca3af] group-hover:text-[#1a1c1c] dark:group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                </Link>
               </div>
 
               <SubjectsView
