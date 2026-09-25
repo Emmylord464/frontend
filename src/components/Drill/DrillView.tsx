@@ -1,22 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Question, Subject, Department } from '../../types';
 import { playCorrectSound, playIncorrectSound, playTapSound, playCompleteSound } from '../../utils/audio';
+import { getFreshQuestionsForSubject } from '../../utils/questionEngine';
 import {
   RotateCcw,
   CheckCircle2,
   XCircle,
-  Lightbulb,
   ArrowRight,
-  BookOpen,
   Volume2,
   VolumeX,
+  Sparkles,
+  ChevronDown,
+  Layers,
+  Flame,
 } from 'lucide-react';
 
 interface DrillViewProps {
-  questions: Question[];
+  questions?: Question[];
   subjects: Subject[];
   activeSubjectId: string;
   onSubjectChange: (subjectId: string) => void;
@@ -30,18 +33,19 @@ interface DrillViewProps {
   onIngestQuestions?: (newQuestions: Question[]) => void;
 }
 
+const QUESTION_COUNT_OPTIONS = [10, 15, 20, 30, 50];
+
 export const DrillView: React.FC<DrillViewProps> = ({
-  questions,
   subjects,
   activeSubjectId,
   onSubjectChange,
   onRecordResult,
   onNavigateToAnalytics,
 }) => {
-  const subjectQuestions = questions.filter(
-    (q) => activeSubjectId === 'all' || q.subjectId === activeSubjectId
+  const [selectedCount, setSelectedCount] = useState<number>(15);
+  const [drillQuestions, setDrillQuestions] = useState<Question[]>(() =>
+    getFreshQuestionsForSubject(activeSubjectId, 15)
   );
-  const activeQuestions = subjectQuestions.length > 0 ? subjectQuestions : questions;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
@@ -49,30 +53,37 @@ export const DrillView: React.FC<DrillViewProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
   const [drillCompleted, setDrillCompleted] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const [showHint, setShowHint] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
 
-  const currentQ = activeQuestions[currentIndex] || activeQuestions[0];
-  const activeSubject = subjects.find((s) => s.id === activeSubjectId) || {
-    id: 'all',
-    name: 'Use of English',
-  };
-
-  // Reset state on card change
-  const resetQuestionState = useCallback(() => {
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setIsShaking(false);
-    setShowHint(false);
-    setIsSpeaking(false);
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  }, []);
+  // Reload fresh non-repeating questions whenever subject or question count changes
+  const loadFreshDrill = useCallback(
+    (subjId: string, count: number) => {
+      const fresh = getFreshQuestionsForSubject(subjId, count);
+      setDrillQuestions(fresh);
+      setCurrentIndex(0);
+      setSelectedOption(null);
+      setIsAnswered(false);
+      setCorrectCount(0);
+      setDrillCompleted(false);
+      setIsShaking(false);
+      setIsSpeaking(false);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    resetQuestionState();
-  }, [currentIndex, activeSubjectId, resetQuestionState]);
+    loadFreshDrill(activeSubjectId, selectedCount);
+  }, [activeSubjectId, selectedCount, loadFreshDrill]);
+
+  const currentQ = drillQuestions[currentIndex] || drillQuestions[0];
+  const activeSubject = subjects.find((s) => s.id === activeSubjectId) || {
+    id: 'all',
+    name: 'All Subjects (High Yield)',
+  };
 
   // Voice narration
   const handleSpeak = (text: string) => {
@@ -112,8 +123,15 @@ export const DrillView: React.FC<DrillViewProps> = ({
 
   const handleNext = () => {
     playTapSound();
-    if (currentIndex + 1 < activeQuestions.length) {
+    if (currentIndex + 1 < drillQuestions.length) {
       setCurrentIndex((prev) => prev + 1);
+      setSelectedOption(null);
+      setIsAnswered(false);
+      setIsShaking(false);
+      setIsSpeaking(false);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
     } else {
       setDrillCompleted(true);
       playCompleteSound();
@@ -122,13 +140,10 @@ export const DrillView: React.FC<DrillViewProps> = ({
 
   const handleRestart = () => {
     playTapSound();
-    setCurrentIndex(0);
-    setCorrectCount(0);
-    setDrillCompleted(false);
-    resetQuestionState();
+    loadFreshDrill(activeSubjectId, selectedCount);
   };
 
-  // Keyboard navigation: 1-4 or A-D to select, Space/Enter to advance
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
@@ -149,12 +164,12 @@ export const DrillView: React.FC<DrillViewProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAnswered, currentIndex, activeQuestions.length]);
+  }, [isAnswered, currentIndex, drillQuestions.length]);
 
   if (!currentQ) {
     return (
       <div className="w-full max-w-lg mx-auto py-12 px-4 text-center text-xs text-stone-500">
-        No questions available for this subject.
+        Preparing fresh questions...
       </div>
     );
   }
@@ -162,32 +177,110 @@ export const DrillView: React.FC<DrillViewProps> = ({
   const isSelectedCorrect = selectedOption === currentQ.correctAnswer;
 
   return (
-    <div className="w-full flex-1 flex flex-col justify-between px-3 sm:px-4 py-2 max-w-lg mx-auto select-none">
-      {/* Whisper-Thin Top Meta & Progress */}
-      <div className="space-y-2 mb-2">
-        <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-stone-900 dark:text-white uppercase tracking-wider text-[11px]">
-            {activeSubject.name}
-          </span>
-          <span className="text-[11px] font-mono text-stone-400">
-            {currentIndex + 1} / {activeQuestions.length}
-          </span>
+    <div className="w-full flex-1 flex flex-col justify-between px-3.5 sm:px-5 py-3 max-w-lg mx-auto select-none space-y-3 pb-24 text-stone-900 dark:text-stone-100">
+      {/* ─── Ultra-Premium Header & Controls ─── */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          {/* Subject Dropdown Selector */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                playTapSound();
+                setIsSubjectDropdownOpen(!isSubjectDropdownOpen);
+              }}
+              className="flex items-center gap-2 py-1.5 px-3 rounded-xl bg-white dark:bg-[#181a1c] border border-stone-200/80 dark:border-stone-800 shadow-2xs text-xs font-semibold hover:border-stone-400 dark:hover:border-stone-600 transition-all cursor-pointer"
+            >
+              <span className="truncate max-w-[140px] sm:max-w-[200px] text-stone-900 dark:text-white">
+                {activeSubject.name}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
+            </button>
+
+            {isSubjectDropdownOpen && (
+              <div className="absolute top-full left-0 mt-1.5 w-64 bg-white dark:bg-[#181a1c] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl z-50 p-1.5 space-y-1 max-h-60 overflow-y-auto">
+                <button
+                  onClick={() => {
+                    playTapSound();
+                    onSubjectChange('all');
+                    setIsSubjectDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between ${
+                    activeSubjectId === 'all'
+                      ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                      : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  }`}
+                >
+                  <span>All Subjects (Hardest)</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                </button>
+
+                {subjects.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => {
+                      playTapSound();
+                      onSubjectChange(sub.id);
+                      setIsSubjectDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between ${
+                      activeSubjectId === sub.id
+                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 font-semibold'
+                        : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                    }`}
+                  >
+                    <span>{sub.name}</span>
+                    <span className="text-[10px] font-mono opacity-60">{sub.readiness}%</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Question Count Pills */}
+          <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-900 p-1 rounded-xl border border-stone-200/60 dark:border-stone-800">
+            {QUESTION_COUNT_OPTIONS.map((count) => (
+              <button
+                key={count}
+                onClick={() => {
+                  playTapSound();
+                  setSelectedCount(count);
+                }}
+                className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                  selectedCount === count
+                    ? 'bg-white dark:bg-[#181a1c] text-stone-900 dark:text-white shadow-2xs'
+                    : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
+                }`}
+              >
+                {count}Q
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Progress line */}
-        <div className="w-full bg-stone-100 dark:bg-stone-800 h-1 rounded-full overflow-hidden">
-          <motion.div
-            className="bg-stone-900 dark:bg-white h-full rounded-full"
-            initial={{ width: 0 }}
-            animate={{
-              width: `${((currentIndex + (isAnswered ? 1 : 0.3)) / activeQuestions.length) * 100}%`,
-            }}
-            transition={{ duration: 0.3 }}
-          />
+        {/* Progress Tracker Bar */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[11px] font-mono text-stone-400">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Question {currentIndex + 1} of {drillQuestions.length}</span>
+            </span>
+            <span>{Math.round(((currentIndex + (isAnswered ? 1 : 0)) / drillQuestions.length) * 100)}%</span>
+          </div>
+
+          <div className="w-full bg-stone-100 dark:bg-stone-800/80 h-1 rounded-full overflow-hidden">
+            <motion.div
+              className="bg-[#c2410c] h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{
+                width: `${((currentIndex + (isAnswered ? 1 : 0.3)) / drillQuestions.length) * 100}%`,
+              }}
+              transition={{ duration: 0.25 }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Main Card Container */}
+      {/* ─── Main Question & Tactical Options ─── */}
       {!drillCompleted ? (
         <motion.div
           animate={isShaking ? { x: [-8, 8, -6, 6, 0] } : { x: 0 }}
@@ -195,15 +288,21 @@ export const DrillView: React.FC<DrillViewProps> = ({
           className="flex-1 flex flex-col justify-between space-y-3"
         >
           {/* Question Prompt Card */}
-          <div className="rounded-3xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                {currentQ.syllabusTopic || 'Core Concept'}
-              </span>
+          <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800/80 bg-white dark:bg-[#181a1c] p-5 sm:p-6 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-mono text-stone-500 dark:text-stone-400 font-semibold border border-stone-200/60 dark:border-stone-700/60">
+                  {currentQ.year || 'Authentic UTME'}
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 truncate max-w-[160px]">
+                  {currentQ.syllabusTopic || 'Core Concept'}
+                </span>
+              </div>
+
               <button
                 type="button"
                 onClick={() => handleSpeak(currentQ.text)}
-                className="p-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
+                className="p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
                 title="Read aloud"
               >
                 {isSpeaking ? (
@@ -214,19 +313,19 @@ export const DrillView: React.FC<DrillViewProps> = ({
               </button>
             </div>
 
-            <h2 className="font-serif text-lg sm:text-xl font-semibold leading-relaxed text-stone-900 dark:text-white">
+            <h2 className="font-serif text-lg sm:text-xl font-bold leading-relaxed text-stone-900 dark:text-white whitespace-pre-line">
               {currentQ.text}
             </h2>
           </div>
 
-          {/* 4 Tactile Option Tiles */}
+          {/* 4 Tactile Option Cards */}
           <div className="space-y-2">
             {currentQ.options.map((opt, idx) => {
               const isSelected = selectedOption === opt.id;
               const isCorrectOpt = opt.id === currentQ.correctAnswer;
 
               let style =
-                'border-stone-200 dark:border-stone-800 bg-white dark:bg-[#181a1c] text-stone-900 dark:text-white hover:border-stone-400';
+                'border-stone-200/80 dark:border-stone-800/80 bg-white dark:bg-[#181a1c] text-stone-900 dark:text-stone-100 hover:border-stone-400 dark:hover:border-stone-600 shadow-2xs';
 
               if (isAnswered) {
                 if (isCorrectOpt) {
@@ -246,10 +345,10 @@ export const DrillView: React.FC<DrillViewProps> = ({
                   key={opt.id}
                   onClick={() => handleSelectOption(opt.id as 'A' | 'B' | 'C' | 'D')}
                   disabled={isAnswered}
-                  className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border transition-all flex items-start gap-3 ${style}`}
+                  className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${style}`}
                 >
                   <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-semibold ${
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
                       isAnswered && isCorrectOpt
                         ? 'bg-emerald-600 text-white'
                         : isAnswered && isSelected && !isCorrectOpt
@@ -259,7 +358,7 @@ export const DrillView: React.FC<DrillViewProps> = ({
                   >
                     {opt.id}
                   </span>
-                  <span className="text-sm font-medium pt-0.5 flex-1 leading-snug">{opt.text}</span>
+                  <span className="text-xs sm:text-sm font-medium pt-0.5 flex-1 leading-snug">{opt.text}</span>
                   <span className="text-[10px] text-stone-400 font-mono hidden sm:inline opacity-60">
                     [{idx + 1}]
                   </span>
@@ -268,20 +367,20 @@ export const DrillView: React.FC<DrillViewProps> = ({
             })}
           </div>
 
-          {/* Instant Inline Explanation (Collapsed until answered) */}
+          {/* Instant Inline Step-by-Step Explanation */}
           <AnimatePresence>
             {isAnswered && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`rounded-2xl border p-4 text-xs space-y-1.5 overflow-hidden ${
+                className={`rounded-2xl border p-4 text-xs space-y-1.5 overflow-hidden shadow-2xs ${
                   isSelectedCorrect
                     ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200'
                     : 'border-amber-200 dark:border-amber-900/50 bg-amber-50/60 dark:bg-amber-950/20 text-stone-800 dark:text-stone-200'
                 }`}
               >
-                <div className="flex items-center justify-between font-semibold">
+                <div className="flex items-center justify-between font-bold">
                   <span className="flex items-center gap-1.5">
                     {isSelectedCorrect ? (
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -289,8 +388,8 @@ export const DrillView: React.FC<DrillViewProps> = ({
                       <XCircle className="w-4 h-4 text-amber-600" />
                     )}
                     {isSelectedCorrect
-                      ? 'Spot on! Correct answer.'
-                      : `Correct answer: (${currentQ.correctAnswer})`}
+                      ? 'Accurate derivation! Correct answer.'
+                      : `Key: (${currentQ.correctAnswer})`}
                   </span>
                 </div>
                 <p className="leading-relaxed text-stone-600 dark:text-stone-300">
@@ -309,23 +408,23 @@ export const DrillView: React.FC<DrillViewProps> = ({
             >
               <button
                 onClick={handleNext}
-                className="w-full sm:w-auto py-3 px-6 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                className="w-full sm:w-auto py-3 px-6 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-2xs cursor-pointer"
               >
-                <span>{currentIndex + 1 < activeQuestions.length ? 'Next Question' : 'Finish Drill'}</span>
+                <span>{currentIndex + 1 < drillQuestions.length ? 'Next Question' : 'Finish Drill'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
           )}
         </motion.div>
       ) : (
-        /* Clean Completion Victory Card */
+        /* ─── Ultra-Sleek Completion Victory Card ─── */
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-3xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-6 text-center space-y-5 shadow-sm my-auto"
+          className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-6 text-center space-y-4 shadow-2xs my-auto"
         >
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-8 w-8" />
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-6 w-6" />
           </div>
 
           <div className="space-y-1">
@@ -333,41 +432,42 @@ export const DrillView: React.FC<DrillViewProps> = ({
               Drill Set Completed
             </h2>
             <p className="text-xs text-stone-500 dark:text-stone-400">
-              Your results are synced to your 250+ Probability Index.
+              {correctCount} of {drillQuestions.length} answered correctly ({Math.round((correctCount / drillQuestions.length) * 100)}% accuracy).
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 py-2">
-            <div className="rounded-2xl bg-[#f9f9f8] dark:bg-[#121314] p-3.5">
+          <div className="grid grid-cols-2 gap-2.5 py-1">
+            <div className="rounded-2xl bg-stone-50 dark:bg-[#121314] p-3 border border-stone-100 dark:border-stone-800/60">
               <span className="text-[10px] uppercase text-stone-400 block font-mono">Score</span>
               <span className="font-serif text-2xl font-bold text-stone-900 dark:text-white">
-                {correctCount} / {activeQuestions.length}
+                {correctCount} / {drillQuestions.length}
               </span>
             </div>
-            <div className="rounded-2xl bg-[#f9f9f8] dark:bg-[#121314] p-3.5">
+            <div className="rounded-2xl bg-stone-50 dark:bg-[#121314] p-3 border border-stone-100 dark:border-stone-800/60">
               <span className="text-[10px] uppercase text-stone-400 block font-mono">Accuracy</span>
               <span className="font-serif text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                {Math.round((correctCount / activeQuestions.length) * 100)}%
+                {Math.round((correctCount / drillQuestions.length) * 100)}%
               </span>
             </div>
           </div>
 
-          <div className="space-y-2 pt-2">
+          <div className="space-y-2 pt-1">
             <button
               onClick={handleRestart}
-              className="w-full py-3.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-semibold text-xs flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-sm"
+              className="w-full py-3 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-semibold text-xs flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-2xs cursor-pointer"
             >
-              <RotateCcw className="w-4 h-4" />
-              <span>Drill Another Round</span>
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Drill Another Fresh Set</span>
             </button>
+
             <button
               onClick={() => {
                 playTapSound();
                 onNavigateToAnalytics();
               }}
-              className="w-full py-3 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 font-semibold text-xs hover:bg-stone-50 dark:hover:bg-stone-800/40 transition-colors"
+              className="w-full py-2.5 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 font-semibold text-xs hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors cursor-pointer"
             >
-              View 250+ Probability
+              View Probability Diagnostics
             </button>
           </div>
         </motion.div>

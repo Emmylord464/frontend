@@ -29,9 +29,7 @@ import {
   ChevronDown,
   Volume2,
   VolumeX,
-  Share2,
 } from 'lucide-react';
-import { ShareScoreModal } from '../Modals/ShareScoreModal';
 
 interface MockExamViewProps {
   profile: UserProfile;
@@ -78,7 +76,6 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
   const [timeLeft, setTimeLeft] = useState(120 * 60); // 120 minutes (2 Hours)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [activeReviewTab, setActiveReviewTab] = useState<'all' | 'incorrect' | 'correct'>('all');
 
   // Generate 200 Questions (50 per subject)
@@ -595,17 +592,6 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
         {/* Action Buttons */}
         <div className="space-y-2 pt-1">
           <button
-            onClick={() => {
-              playTapSound();
-              setIsShareModalOpen(true);
-            }}
-            className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-2xs cursor-pointer"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Share Scholar Scorecard (Family & Socials)</span>
-          </button>
-
-          <button
             onClick={handleRestart}
             className="w-full py-3 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-semibold text-xs flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-2xs cursor-pointer"
           >
@@ -614,20 +600,6 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Share Scorecard Modal */}
-      <ShareScoreModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        profile={profile}
-        examScore={compositeScore}
-        subjectScores={subjectScores.map((s) => ({
-          subjectName: s.subjectName,
-          correct: s.correct,
-          total: 50,
-          scaledScore: s.scaledScore,
-        }))}
-      />
     </div>
   );
 };
