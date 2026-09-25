@@ -49,8 +49,8 @@ export default function App() {
     });
   }, []);
 
-  // Netflix-style Scholar Cinematic Intro State
-  const [showIntro, setShowIntro] = useState(true);
+  // Scholar Intro State (set to false for immediate instant load)
+  const [showIntro, setShowIntro] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | null>(null);
 
   // User Profile State
