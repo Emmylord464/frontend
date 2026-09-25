@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { CelebratoryConfetti } from '../Effects/CelebratoryConfetti';
 import { ShareScoreModal } from '../Modals/ShareScoreModal';
+import { ProUpgradeModal } from '../Modals/ProUpgradeModal';
 import { ScreenGuideSheet, InfoTrigger, ScreenGuideContent } from '../Modals/ScreenGuideSheet';
 
 interface ProfileViewProps {
@@ -57,6 +58,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [streakNotification, setStreakNotification] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isProModalOpen, setIsProModalOpen] = useState(false);
   const [activeGuide, setActiveGuide] = useState<ScreenGuideContent | null>(null);
 
   // SVG Gauge calculations
@@ -165,13 +167,26 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 .toUpperCase()}
             </div>
             <div className="flex flex-col gap-1">
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="font-editorial text-lg font-medium tracking-tight leading-none text-stone-900 dark:text-stone-100">
                   {profile.name}
                 </h2>
-                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 font-ui">
-                  Scholar Candidate
-                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTapSound();
+                    setIsProModalOpen(true);
+                  }}
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 transition-all cursor-pointer ${
+                    profile.tier === 'pro'
+                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                      : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  }`}
+                  title="Click to preview Pro Upgrade Modal (Mockup)"
+                >
+                  <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  <span>{profile.tier === 'pro' ? 'Pro Member' : 'Upgrade Pro (Mock)'}</span>
+                </button>
               </div>
               <div className="flex items-baseline gap-2 text-xs text-stone-500 dark:text-stone-400 font-ui">
                 <span className="font-mono">{profile.jambRegNumber}</span>
@@ -777,6 +792,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         profile={profile}
+      />
+
+      {/* Pro Plan Upgrade Modal (Mockup Preview) */}
+      <ProUpgradeModal
+        isOpen={isProModalOpen}
+        onClose={() => setIsProModalOpen(false)}
+        currentTier={profile.tier}
+        onUpgradeSuccess={(tier) => {
+          onUpdateProfile({ tier });
+          setShowConfetti(true);
+        }}
       />
 
       {/* Contextual Screen Guide Bottom Sheet */}

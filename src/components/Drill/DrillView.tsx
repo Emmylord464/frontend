@@ -74,7 +74,7 @@ export const DrillView: React.FC<DrillViewProps> = ({
     resetQuestionState();
   }, [currentIndex, activeSubjectId, resetQuestionState]);
 
-  // Voice narration with natural voice selection
+  // Voice narration
   const handleSpeak = (text: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     if (isSpeaking) {
@@ -82,33 +82,9 @@ export const DrillView: React.FC<DrillViewProps> = ({
       setIsSpeaking(false);
       return;
     }
-    playTapSound();
     window.speechSynthesis.cancel();
-    const cleanText = text
-      .replace(/[*_#`~]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const utterance = new SpeechSynthesisUtterance(text.replace(/[*_#]/g, ''));
     utterance.rate = 0.92;
-    utterance.pitch = 1.02;
-
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(
-      (v) =>
-        (v.name.includes('Natural') ||
-          v.name.includes('Google UK English Female') ||
-          v.name.includes('Google US English') ||
-          v.name.includes('Sonia') ||
-          v.name.includes('Samantha') ||
-          v.name.includes('Victoria')) &&
-        v.lang.startsWith('en')
-    ) || voices.find((v) => v.lang.startsWith('en'));
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
     setIsSpeaking(true);
