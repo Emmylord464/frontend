@@ -16,12 +16,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'subjects', label: 'Syllabus', icon: BookOpen },
   { id: 'drill', label: 'Drill', icon: Layers },
-  { id: 'mock', label: 'Mock', icon: FileCheck },
-  { id: 'recovery', label: 'Lab', icon: Crosshair },
-  { id: 'analytics', label: 'Readiness', icon: BarChart2 },
-  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'subjects', label: 'Subjects', icon: BookOpen },
+  { id: 'mock', label: 'CBT Mock', icon: FileCheck },
+  { id: 'analytics', label: 'Progress', icon: BarChart2 },
 ];
 
 export const BottomNav: React.FC<BottomNavProps> = ({
