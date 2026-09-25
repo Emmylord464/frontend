@@ -1,34 +1,24 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, CourseTrack } from '../../types';
-import { playTapSound, playCorrectSound } from '../../utils/audio';
+import { playTapSound } from '../../utils/audio';
 import { UNIVERSITIES_DIRECTORY, UniversityData } from '../../data/universitiesData';
 import { CountUp } from '../Motion/CountUp';
 import {
   Building2,
   GraduationCap,
-  Sparkles,
-  Award,
+  ExternalLink,
   ChevronDown,
   ChevronUp,
-  CheckCircle2,
-  ExternalLink,
-  Search,
-  Star,
-  Flame,
   ArrowRight,
-  TrendingUp,
   ShieldCheck,
-  Globe,
-  Compass,
-  Clock,
-  Radio,
+  CheckCircle2,
+  Sparkles,
   BookOpen,
-  ThumbsUp,
   Sliders,
-  Layers,
+  Compass,
 } from 'lucide-react';
 
 interface AdmissionsOracleViewProps {
@@ -37,487 +27,344 @@ interface AdmissionsOracleViewProps {
   onSelectCourseTrack?: (track: CourseTrack) => void;
 }
 
-type UniversityCategory = 'Federal' | 'State' | 'Private' | 'International';
+const PRESET_SCORES = [280, 300, 320, 340, 360];
 
 export const AdmissionsOracleView: React.FC<AdmissionsOracleViewProps> = ({
   profile,
   onNavigateToDrill,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedUniId, setExpandedUniId] = useState<string | null>(null);
-  const [expandedCategory, setExpandedCategory] = useState<UniversityCategory | null>(null);
+  // Candidate Selected University Choice (Default: UNILAG)
+  const [selectedUniId, setSelectedUniId] = useState<string>('unilag');
+  const [targetScore, setTargetScore] = useState<number>(profile.targetScore || 320);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Followed universities state (saved to localStorage)
-  const [followedIds, setFollowedIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('scholar_followed_universities');
-      return saved ? JSON.parse(saved) : ['unilag', 'covenant', 'ui'];
-    } catch {
-      return ['unilag', 'covenant', 'ui'];
-    }
-  });
+  const selectedUni = useMemo(() => {
+    return UNIVERSITIES_DIRECTORY.find((u) => u.id === selectedUniId) || UNIVERSITIES_DIRECTORY[0];
+  }, [selectedUniId]);
 
-  const toggleFollow = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    playTapSound();
-    setFollowedIds((prev) => {
-      const exists = prev.includes(id);
-      const updated = exists ? prev.filter((item) => item !== id) : [...prev, id];
-      try {
-        localStorage.setItem('scholar_followed_universities', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
-  };
+  const targetCourseName = profile.courseTrack?.name || 'Medicine & Surgery';
+  const cutoffInfo =
+    selectedUni.courseCutoffs[targetCourseName] || Object.values(selectedUni.courseCutoffs)[0] || {
+      aggregate: 75.0,
+      utmeMin: 280,
+    };
 
-  const followedUniversities = useMemo(() => {
-    return UNIVERSITIES_DIRECTORY.filter((uni) => followedIds.includes(uni.id));
-  }, [followedIds]);
+  // Deficit / Surplus calculation
+  const scoreDiff = (profile.currentEstimatedScore || 294) - (cutoffInfo.utmeMin || selectedUni.generalCutOff);
+  const isCompetitive = scoreDiff >= 0;
 
-  // Alumni & Web Recommendations based on candidate's course track and score
-  const recommendedUniversities = useMemo(() => {
-    const course = profile.courseTrack?.name || 'Medicine & Surgery';
-    return UNIVERSITIES_DIRECTORY.filter((uni) => {
-      // Find universities offering the course or top tier rated
-      return (
-        uni.popularCourses.some((c) => c.toLowerCase().includes(course.toLowerCase())) ||
-        uni.alumniRating >= 4.7
-      );
-    }).slice(0, 3);
-  }, [profile.courseTrack?.name]);
-
-  const toggleCategory = (cat: UniversityCategory) => {
-    playTapSound();
-    setExpandedCategory((prev) => (prev === cat ? null : cat));
-  };
-
-  const toggleExpandUni = (id: string) => {
-    playTapSound();
-    setExpandedUniId((prev) => (prev === id ? null : id));
-  };
-
-  const getStatusBadge = (status: UniversityData['status']) => {
-    switch (status) {
-      case 'Form Open':
-        return 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';
-      case 'Closing Soon':
-        return 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800 animate-pulse';
-      case 'Screening Scheduled':
-        return 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800';
-      case 'Admission List Out':
-        return 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-800';
-      default:
-        return 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300';
-    }
-  };
-
-  // Search filtered results
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return null;
+  // 2 Curated Alternative Recommendations (Ultra-Clean, High Match)
+  const recommendations = useMemo(() => {
     return UNIVERSITIES_DIRECTORY.filter(
-      (uni) =>
-        uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        uni.shortName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        uni.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        uni.popularCourses.some((c) => c.toLowerCase().includes(searchQuery.toLowerCase()))
+      (u) => u.id !== selectedUni.id && u.popularCourses.some((c) => c.toLowerCase().includes(targetCourseName.toLowerCase()))
+    ).slice(0, 2);
+  }, [selectedUni.id, targetCourseName]);
+
+  // Dropdown list filtering
+  const dropdownList = useMemo(() => {
+    if (!searchQuery.trim()) return UNIVERSITIES_DIRECTORY;
+    return UNIVERSITIES_DIRECTORY.filter(
+      (u) =>
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.shortName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.state.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery]);
 
+  const handleSelectUni = (id: string) => {
+    playTapSound();
+    setSelectedUniId(id);
+    setIsDropdownOpen(false);
+    setSearchQuery('');
+  };
+
   return (
-    <div className="w-full flex-1 flex flex-col px-3 sm:px-4 py-3 max-w-2xl mx-auto space-y-4 select-none pb-20">
-      {/* ─── Real-Time Admission Bulletin Ticker ─── */}
-      <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/60 bg-emerald-50/70 dark:bg-emerald-950/20 p-3 flex items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-          <div className="text-[11px] text-emerald-900 dark:text-emerald-200 truncate">
-            <strong className="font-semibold uppercase tracking-wider font-mono">Live Bulletin:</strong>{' '}
-            2025/2026 Post-UTME Portals open across UNILAG, UI, OAU, LASU & Covenant. Direct links synced.
-          </div>
+    <div className="w-full flex-1 flex flex-col px-3.5 sm:px-5 py-4 max-w-lg mx-auto space-y-4 select-none pb-24 text-stone-900 dark:text-stone-100">
+      {/* ─── Ultra-Quiet Editorial Header ─── */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-stone-400">
+          <Compass className="w-3.5 h-3.5 text-[#c2410c]" strokeWidth={1.5} />
+          <span>Institutional Admissions Dossier</span>
         </div>
-        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-200/60 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 font-mono font-bold shrink-0">
-          LIVE
-        </span>
+        <h1 className="font-serif text-2xl sm:text-3xl font-semibold tracking-tight leading-tight">
+          Admissions Blueprint
+        </h1>
+        <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+          Calibrated against official verified merit cut-offs, screening formulas, and alumni records.
+        </p>
       </div>
 
-      {/* ─── Header Card ─── */}
-      <div className="rounded-3xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-5 shadow-2xs space-y-3">
+      {/* ─── Step 1: Target University Selector (Quiet Luxury Pill / Dropdown) ─── */}
+      <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800/80 bg-white dark:bg-[#181a1c] p-4 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
-              <Compass className="w-3.5 h-3.5 text-[#c2410c]" />
-              <span>University & Post-UTME Gateway</span>
-            </div>
-            <h1 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-white">
-              Admissions Portal & Recommendations
-            </h1>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase font-mono text-stone-400">Target Track</span>
-            <span className="text-xs font-semibold text-stone-900 dark:text-white truncate max-w-[140px]">
-              {profile.courseTrack?.name || 'Medicine & Surgery'}
-            </span>
-          </div>
+          <label className="text-[11px] font-mono uppercase tracking-wider text-stone-400 font-semibold">
+            Primary University of Choice
+          </label>
+          <span className="text-[10px] text-stone-400 font-mono">
+            {UNIVERSITIES_DIRECTORY.length} Accredited Institutions
+          </span>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative pt-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search 100+ universities, courses, or states..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-[#121314] text-xs text-stone-900 dark:text-white placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-600 transition-all"
-          />
+        {/* Selected University Active Capsule */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              playTapSound();
+              setIsDropdownOpen((prev) => !prev);
+            }}
+            className="w-full p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-[#121314] flex items-center justify-between hover:border-stone-400 dark:hover:border-stone-600 transition-colors text-left cursor-pointer"
+          >
+            <div className="space-y-0.5 truncate pr-2">
+              <div className="flex items-center gap-2">
+                <span className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-white truncate">
+                  {selectedUni.name} ({selectedUni.shortName})
+                </span>
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300 shrink-0">
+                  {selectedUni.type}
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-400 font-mono truncate">
+                {selectedUni.location} · {selectedUni.state}
+              </p>
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-stone-400 shrink-0 transition-transform ${
+                isDropdownOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Searchable All-Universities Dropdown Menu */}
+          <AnimatePresence>
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-[#1c1e20] shadow-xl p-2 space-y-1.5 max-h-64 overflow-y-auto"
+              >
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Type to search institution..."
+                  className="w-full px-3 py-2 rounded-lg bg-stone-100 dark:bg-[#141517] text-xs text-stone-900 dark:text-white placeholder:text-stone-400 focus:outline-hidden mb-1"
+                  autoFocus
+                />
+
+                <div className="space-y-0.5">
+                  {dropdownList.map((uni) => (
+                    <button
+                      key={uni.id}
+                      type="button"
+                      onClick={() => handleSelectUni(uni.id)}
+                      className={`w-full p-2 rounded-lg text-left text-xs flex items-center justify-between hover:bg-stone-100 dark:hover:bg-stone-800/80 transition-colors cursor-pointer ${
+                        selectedUni.id === uni.id
+                          ? 'bg-stone-100 dark:bg-stone-800 font-semibold text-stone-900 dark:text-white'
+                          : 'text-stone-600 dark:text-stone-300'
+                      }`}
+                    >
+                      <span className="truncate">{uni.name} ({uni.shortName})</span>
+                      <span className="text-[10px] font-mono text-stone-400 shrink-0 ml-2">
+                        {uni.type}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Target Score Presets */}
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center justify-between text-[11px] font-mono text-stone-400">
+            <span>Target UTME Score Benchmark</span>
+            <span className="text-stone-900 dark:text-white font-semibold font-serif text-sm">
+              {targetScore} / 400
+            </span>
+          </div>
+
+          <div className="grid grid-cols-5 gap-1.5">
+            {PRESET_SCORES.map((score) => (
+              <button
+                key={score}
+                type="button"
+                onClick={() => {
+                  playTapSound();
+                  setTargetScore(score);
+                }}
+                className={`py-1.5 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer ${
+                  targetScore === score
+                    ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 shadow-2xs'
+                    : 'bg-stone-100 dark:bg-stone-800/80 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
+                }`}
+              >
+                {score}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ─── Search Results (when searching) ─── */}
-      {searchResults && (
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-xs text-stone-400 font-mono px-1">
-            <span>Search Results ({searchResults.length})</span>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="text-stone-600 dark:text-stone-300 hover:underline"
-            >
-              Clear Search
-            </button>
+      {/* ─── Step 2: Bespoke University Blueprint (Primary Hero Card) ─── */}
+      <motion.div
+        key={selectedUni.id}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-5 shadow-2xs space-y-4"
+      >
+        {/* Card Header */}
+        <div className="flex items-start justify-between gap-2 border-b border-stone-100 dark:border-stone-800/80 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#c2410c] font-bold">
+                ● {selectedUni.status}
+              </span>
+              <span className="text-[10px] font-mono text-stone-400">
+                · {selectedUni.lastUpdated}
+              </span>
+            </div>
+            <h2 className="font-serif text-lg sm:text-xl font-bold text-stone-900 dark:text-white mt-0.5">
+              {selectedUni.shortName} Admission Blueprint
+            </h2>
           </div>
 
-          <div className="space-y-2.5">
-            {searchResults.map((uni) => (
-              <UniversityCard
-                key={uni.id}
-                uni={uni}
-                isFollowed={followedIds.includes(uni.id)}
-                isExpanded={expandedUniId === uni.id}
-                onToggleFollow={(e) => toggleFollow(uni.id, e)}
-                onToggleExpand={() => toggleExpandUni(uni.id)}
-                onNavigateToDrill={onNavigateToDrill}
-                getStatusBadge={getStatusBadge}
-              />
-            ))}
-            {searchResults.length === 0 && (
-              <div className="text-center py-8 text-xs text-stone-400">
-                No universities matched "{searchQuery}".
-              </div>
-            )}
+          <a
+            href={selectedUni.portalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => playTapSound()}
+            className="p-2 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors flex items-center gap-1 text-[11px] font-mono cursor-pointer shrink-0"
+            title="Open official university portal in new tab"
+          >
+            <span>Portal</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
+        {/* 3 Core Calibrated Metrics */}
+        <div className="grid grid-cols-3 gap-2 bg-stone-50 dark:bg-[#121314] p-3 rounded-2xl border border-stone-100 dark:border-stone-800/80 text-center">
+          <div>
+            <span className="text-[9px] uppercase font-mono text-stone-400 block">Course Cutoff</span>
+            <span className="font-serif text-base sm:text-lg font-bold text-stone-900 dark:text-white">
+              {cutoffInfo.utmeMin > 0 ? `${cutoffInfo.utmeMin}+` : `${cutoffInfo.aggregate} pts`}
+            </span>
+          </div>
+
+          <div className="border-x border-stone-200 dark:border-stone-800">
+            <span className="text-[9px] uppercase font-mono text-stone-400 block">Est. Aggregate</span>
+            <span className="font-serif text-base sm:text-lg font-bold text-stone-900 dark:text-white">
+              {cutoffInfo.aggregate}%
+            </span>
+          </div>
+
+          <div>
+            <span className="text-[9px] uppercase font-mono text-stone-400 block">Pace Status</span>
+            <span
+              className={`font-mono text-xs font-bold block mt-0.5 ${
+                isCompetitive ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+              }`}
+            >
+              {isCompetitive ? `+${scoreDiff} Safe` : `${scoreDiff} Deficit`}
+            </span>
           </div>
         </div>
-      )}
 
-      {!searchResults && (
-        <>
-          {/* ─── 1. Candidate's Followed Universities (Watchlist) ─── */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-900 dark:text-white uppercase tracking-wider">
-                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                <span>My Followed Universities ({followedUniversities.length})</span>
-              </div>
-              <span className="text-[10px] text-stone-400 font-mono">Real-time Watchlist</span>
-            </div>
-
-            <div className="space-y-2.5">
-              {followedUniversities.map((uni) => (
-                <UniversityCard
-                  key={uni.id}
-                  uni={uni}
-                  isFollowed={true}
-                  isExpanded={expandedUniId === uni.id}
-                  onToggleFollow={(e) => toggleFollow(uni.id, e)}
-                  onToggleExpand={() => toggleExpandUni(uni.id)}
-                  onNavigateToDrill={onNavigateToDrill}
-                  getStatusBadge={getStatusBadge}
-                />
-              ))}
-
-              {followedUniversities.length === 0 && (
-                <div className="p-4 rounded-2xl bg-stone-50 dark:bg-[#181a1c] border border-dashed border-stone-200 dark:border-stone-800 text-center text-xs text-stone-400">
-                  Star any university from the categories below to pin it to your real-time watchlist.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ─── 2. Alumni & Course Recommendation Radar ─── */}
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-900 dark:text-white uppercase tracking-wider">
-                <ThumbsUp className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Alumni & Course Match Recommendations</span>
-              </div>
-              <span className="text-[10px] text-stone-400 font-mono">Web & Alumni Reports</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {recommendedUniversities.map((uni, idx) => (
-                <div
-                  key={uni.id}
-                  className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-3.5 flex flex-col justify-between space-y-2 shadow-2xs"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 font-mono font-bold">
-                        ★ {uni.alumniRating} / 5.0
-                      </span>
-                      <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                        {uni.employabilityScore}
-                      </span>
-                    </div>
-                    <h4 className="font-serif font-bold text-stone-900 dark:text-white text-sm">
-                      {uni.shortName}
-                    </h4>
-                    <p className="text-[10px] text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed">
-                      {uni.alumniReport}
-                    </p>
-                  </div>
-
-                  <a
-                    href={uni.portalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => playTapSound()}
-                    className="w-full py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-semibold flex items-center justify-center gap-1 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-                  >
-                    <span>Visit Portal</span>
-                    <ExternalLink className="w-3 h-3 text-stone-400" />
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ─── 3. Collapsible 100+ University Category Accordions ─── */}
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between px-1">
-              <span className="text-xs font-semibold text-stone-900 dark:text-white uppercase tracking-wider">
-                Explore Full Directory (100+ Institutions)
-              </span>
-              <span className="text-[10px] text-stone-400 font-mono">Tap category to expand</span>
-            </div>
-
-            {(['Federal', 'State', 'Private', 'International'] as UniversityCategory[]).map((category) => {
-              const isOpen = expandedCategory === category;
-              const categoryUnis = UNIVERSITIES_DIRECTORY.filter((u) => u.type === category);
-
-              return (
-                <div
-                  key={category}
-                  className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] overflow-hidden shadow-2xs"
-                >
-                  {/* Category Header Accordion Button */}
-                  <button
-                    onClick={() => toggleCategory(category)}
-                    className="w-full p-4 flex items-center justify-between text-left hover:bg-stone-50/60 dark:hover:bg-stone-800/40 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200">
-                        {category === 'Federal' && <Building2 className="w-4 h-4" />}
-                        {category === 'State' && <GraduationCap className="w-4 h-4" />}
-                        {category === 'Private' && <Sparkles className="w-4 h-4" />}
-                        {category === 'International' && <Globe className="w-4 h-4" />}
-                      </div>
-                      <div>
-                        <h3 className="font-serif text-sm font-bold text-stone-900 dark:text-white">
-                          {category === 'Federal' && '🏛️ Federal Universities (52+)'}
-                          {category === 'State' && '🏢 State Universities (63+)'}
-                          {category === 'Private' && '🏰 Private Universities (147+)'}
-                          {category === 'International' && '🌍 International & Direct Entry (JUPEB, A-Levels, SAT)'}
-                        </h3>
-                        <span className="text-[10px] text-stone-400 font-mono">
-                          {categoryUnis.length} verified portals & cut-offs
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-1 rounded-lg text-stone-400">
-                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </div>
-                  </button>
-
-                  {/* Expanded Accordion List of Universities */}
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="p-3 border-t border-stone-100 dark:border-stone-800 space-y-2.5 bg-stone-50/50 dark:bg-[#141517]/40"
-                      >
-                        {categoryUnis.map((uni) => (
-                          <UniversityCard
-                            key={uni.id}
-                            uni={uni}
-                            isFollowed={followedIds.includes(uni.id)}
-                            isExpanded={expandedUniId === uni.id}
-                            onToggleFollow={(e) => toggleFollow(uni.id, e)}
-                            onToggleExpand={() => toggleExpandUni(uni.id)}
-                            onNavigateToDrill={onNavigateToDrill}
-                            getStatusBadge={getStatusBadge}
-                          />
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
-// ─── Reusable Compact University Card Component ──────────────────────────────
-interface UniversityCardProps {
-  uni: UniversityData;
-  isFollowed: boolean;
-  isExpanded: boolean;
-  onToggleFollow: (e: React.MouseEvent) => void;
-  onToggleExpand: () => void;
-  onNavigateToDrill?: (subjectId: string) => void;
-  getStatusBadge: (status: UniversityData['status']) => string;
-}
-
-const UniversityCard: React.FC<UniversityCardProps> = ({
-  uni,
-  isFollowed,
-  isExpanded,
-  onToggleFollow,
-  onToggleExpand,
-  onNavigateToDrill,
-  getStatusBadge,
-}) => {
-  return (
-    <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-3.5 sm:p-4 shadow-2xs space-y-2.5 transition-all">
-      {/* Top Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-serif text-sm sm:text-base font-bold text-stone-900 dark:text-white">
-              {uni.name}
-            </h4>
-            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-semibold">
-              {uni.type}
+        {/* Alumni & Employability Verdict */}
+        <div className="space-y-1.5 text-xs">
+          <div className="flex items-center justify-between text-[11px] text-stone-400 font-mono">
+            <span className="font-semibold text-stone-700 dark:text-stone-300">
+              Alumni Employability Index
             </span>
-            <span className="text-[9px] font-mono text-amber-600 dark:text-amber-400 font-semibold">
-              ★ {uni.alumniRating}
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+              ★ {selectedUni.alumniRating} · {selectedUni.employabilityScore}
             </span>
           </div>
-          <p className="text-[11px] text-stone-400 font-mono">
-            {uni.location} · {uni.state} · <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{uni.employabilityScore}</span>
+          <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed bg-stone-50/60 dark:bg-stone-900/30 p-2.5 rounded-xl border border-stone-100 dark:border-stone-800/60">
+            "{selectedUni.alumniReport}"
           </p>
         </div>
 
-        {/* Follow Star + Real-time Status */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={onToggleFollow}
-            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-              isFollowed
-                ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 text-amber-600'
-                : 'border-stone-200 dark:border-stone-800 text-stone-400 hover:text-stone-800 dark:hover:text-white'
-            }`}
-            title={isFollowed ? 'Unfollow university' : 'Follow university to watchlist'}
-          >
-            <Star className={`w-3.5 h-3.5 ${isFollowed ? 'fill-amber-500 text-amber-500' : ''}`} />
-          </button>
-          <span
-            className={`px-2 py-0.5 rounded-full text-[9px] font-semibold border ${getStatusBadge(
-              uni.status
-            )}`}
-          >
-            ● {uni.status}
-          </span>
+        {/* Screening Protocol Breakdown */}
+        <div className="text-[11px] text-stone-600 dark:text-stone-300 space-y-1 pt-1">
+          <div className="flex items-center gap-1.5 font-semibold text-stone-900 dark:text-white">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Screening Format & Requirement</span>
+          </div>
+          <p className="text-stone-500 dark:text-stone-400 leading-relaxed">
+            {selectedUni.postUtmeFormat}: {selectedUni.screeningRequirements}
+          </p>
         </div>
-      </div>
 
-      {/* Alumni Report & Status Detail */}
-      <div className="text-[11px] text-stone-600 dark:text-stone-300 bg-stone-50 dark:bg-[#121314] p-2 rounded-xl border border-stone-100 dark:border-stone-800 flex items-start gap-2">
-        <Clock className="w-3.5 h-3.5 text-stone-400 shrink-0 mt-0.5" />
-        <span className="leading-relaxed">{uni.statusDetail}</span>
-      </div>
-
-      {/* Action Buttons: Direct Official Portal Link + Post-UTME Practice */}
-      <div className="flex items-center gap-2 pt-0.5">
-        <a
-          href={uni.portalUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => playTapSound()}
-          className="flex-1 py-2 px-3 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200 text-xs font-semibold hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <span>Official Portal</span>
-          <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
-        </a>
-
+        {/* 1-Tap Practice Post-UTME Button */}
         {onNavigateToDrill && (
           <button
             onClick={() => {
               playTapSound();
               onNavigateToDrill('all');
             }}
-            className="flex-1 py-2 px-3 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 active:scale-95 flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+            className="w-full py-3 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 transition-all shadow-2xs cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Practice Post-UTME</span>
+            <BookOpen className="w-4 h-4" />
+            <span>Practice {selectedUni.shortName} Post-UTME Past Questions</span>
           </button>
         )}
+      </motion.div>
 
-        <button
-          type="button"
-          onClick={onToggleExpand}
-          className="p-2 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors cursor-pointer"
-          title="View Cut-Offs & Alumni Report"
-        >
-          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-        </button>
-      </div>
+      {/* ─── Step 3: Strong Alternative Recommendations (Max 2 Quiet Cards) ─── */}
+      <div className="space-y-2 pt-1">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[11px] font-mono uppercase tracking-wider text-stone-400 font-semibold">
+            Recommended High-Match Alternatives
+          </span>
+          <span className="text-[10px] text-stone-400 font-mono">For {targetCourseName}</span>
+        </div>
 
-      {/* Collapsible Course Cut-off Benchmarks Drawer */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="pt-2 border-t border-stone-100 dark:border-stone-800 space-y-2 overflow-hidden text-xs"
-          >
-            <div className="p-2 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40 text-[11px] text-amber-900 dark:text-amber-200">
-              <strong>Alumni & Web Report:</strong> {uni.alumniReport}
-            </div>
-
-            <div className="flex items-center justify-between font-semibold text-stone-900 dark:text-white pt-1">
-              <span>Official Departmental Cut-Offs</span>
-              <span className="text-[10px] text-stone-400 font-mono">UTME Min / Aggregate</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-              {Object.entries(uni.courseCutoffs).map(([course, cut]) => (
-                <div
-                  key={course}
-                  className="flex items-center justify-between p-2 rounded-lg bg-stone-50 dark:bg-[#121314] text-[11px]"
-                >
-                  <span className="font-medium text-stone-700 dark:text-stone-300 truncate max-w-[170px]">
-                    {course}
-                  </span>
-                  <span className="font-mono font-semibold text-stone-900 dark:text-white">
-                    {cut.utmeMin > 0 ? `${cut.utmeMin} / ${cut.aggregate}%` : `${cut.aggregate} pts`}
-                  </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {recommendations.map((rec) => (
+            <div
+              key={rec.id}
+              className="rounded-2xl border border-stone-200/70 dark:border-stone-800/70 bg-white dark:bg-[#181a1c] p-3.5 flex flex-col justify-between space-y-2 shadow-2xs"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[10px] font-mono">
+                  <span className="font-semibold text-stone-900 dark:text-white">{rec.shortName}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">★ {rec.alumniRating}</span>
                 </div>
-              ))}
-            </div>
+                <h4 className="font-serif font-bold text-xs text-stone-800 dark:text-stone-200 line-clamp-1">
+                  {rec.name}
+                </h4>
+                <p className="text-[10px] text-stone-400 line-clamp-2 leading-relaxed">
+                  {rec.alumniReport}
+                </p>
+              </div>
 
-            <p className="text-[10px] text-stone-400 leading-relaxed pt-1">
-              <strong>Screening Note:</strong> {uni.screeningRequirements}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="flex items-center gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleSelectUni(rec.id)}
+                  className="flex-1 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 text-[10px] font-semibold hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors text-center cursor-pointer"
+                >
+                  View Blueprint
+                </button>
+                <a
+                  href={rec.portalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playTapSound()}
+                  className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
+                  title="Official portal"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
