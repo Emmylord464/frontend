@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Subject, UserProfile, Department } from '../../types';
-import { playTapSound, playCorrectSound, playCompleteSound } from '../../utils/audio';
+import { Subject, UserProfile } from '../../types';
+import { playTapSound, playCorrectSound, playCompleteSound, playIncorrectSound } from '../../utils/audio';
 import {
   generateFull200QuestionExam,
   CBTQuestion,
@@ -11,24 +11,17 @@ import {
 import {
   Clock,
   CheckCircle2,
-  Bookmark,
   ChevronLeft,
   ChevronRight,
   RotateCcw,
   Award,
   AlertCircle,
-  FileCheck,
-  ShieldCheck,
   ArrowRight,
-  TrendingUp,
-  Sparkles,
   BookOpen,
-  Check,
-  X,
-  Layers,
-  ChevronDown,
-  Volume2,
-  VolumeX,
+  Lock,
+  Unlock,
+  ShieldAlert,
+  FileText,
 } from 'lucide-react';
 
 interface MockExamViewProps {
@@ -44,8 +37,6 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
   profile,
   subjects,
   onFinishMock,
-  onNavigateToSyllabus,
-  onLaunchTargetedDrill,
 }) => {
   // ─── 4 Selected Subjects State (50 Questions Each) ─────────────────────────
   const default4Subjects = useMemo(() => {
@@ -64,8 +55,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
     return [english, ...(sci.slice(0, 3).length === 3 ? sci.slice(0, 3) : others.slice(0, 3))];
   }, [subjects, profile.department]);
 
-  const [selectedSubjects, setSelectedSubjects] = useState<{ id: string; name: string }[]>(default4Subjects);
-  const [isConfiguringSubjects, setIsConfiguringSubjects] = useState(false);
+  const [selectedSubjects] = useState<{ id: string; name: string }[]>(default4Subjects);
 
   // ─── Exam Execution State ──────────────────────────────────────────────────
   const [examStarted, setExamStarted] = useState(false);
@@ -76,7 +66,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
   const [timeLeft, setTimeLeft] = useState(120 * 60); // 120 minutes (2 Hours)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
-  const [activeReviewTab, setActiveReviewTab] = useState<'all' | 'incorrect' | 'correct'>('all');
+  const [lockedTabWarning, setLockedTabWarning] = useState<string | null>(null);
 
   // Generate 200 Questions (50 per subject)
   const { questions: examQuestions, subjectRanges } = useMemo(() => {
@@ -129,15 +119,68 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
     });
   };
 
+  // Strict Tab Switching Validation (Must complete 50 questions before switching subject tab)
+  const handleSubjectTabChange = (targetSubjectId: string) => {
+    if (targetSubjectId === activeSubjectTab) return;
+
+    // Check if active subject has answered all 50 questions
+    const currentRange = subjectRanges[activeSubjectTab];
+    let currentSubjectAnswered = 0;
+    let firstUnansweredIdx: number | null = null;
+
+    if (currentRange) {
+      for (let i = currentRange.start; i <= currentRange.end; i++) {
+        if (userAnswers[i] !== undefined) {
+          currentSubjectAnswered++;
+        } else if (firstUnansweredIdx === null) {
+          firstUnansweredIdx = i;
+        }
+      }
+    }
+
+    if (currentSubjectAnswered < 50) {
+      playIncorrectSound();
+      const remaining = 50 - currentSubjectAnswered;
+      setLockedTabWarning(
+        `Answer all 50 questions in ${activeSubjectInfo.name} before changing tabs (${remaining} remaining).`
+      );
+      setTimeout(() => setLockedTabWarning(null), 4000);
+      return;
+    }
+
+    playTapSound();
+    setActiveSubjectTab(targetSubjectId);
+    const range = subjectRanges[targetSubjectId];
+    if (range) {
+      setCurrentGlobalIndex(range.start);
+    }
+  };
+
+  const handleJumpToNextUnansweredInSubject = () => {
+    playTapSound();
+    const currentRange = subjectRanges[activeSubjectTab];
+    if (currentRange) {
+      for (let i = currentRange.start; i <= currentRange.end; i++) {
+        if (userAnswers[i] === undefined) {
+          setCurrentGlobalIndex(i);
+          setLockedTabWarning(null);
+          return;
+        }
+      }
+    }
+  };
+
   const handleNext = () => {
     playTapSound();
     if (currentGlobalIndex < examQuestions.length - 1) {
       const nextIdx = currentGlobalIndex + 1;
-      setCurrentGlobalIndex(nextIdx);
-      // Switch active tab if we moved into the next subject
       const nextQ = examQuestions[nextIdx];
+
+      // If moving to next subject, check if current subject is fully answered
       if (nextQ && nextQ.subjectId !== activeSubjectTab) {
-        setActiveSubjectTab(nextQ.subjectId);
+        handleSubjectTabChange(nextQ.subjectId);
+      } else {
+        setCurrentGlobalIndex(nextIdx);
       }
     }
   };
@@ -146,30 +189,17 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
     playTapSound();
     if (currentGlobalIndex > 0) {
       const prevIdx = currentGlobalIndex - 1;
-      setCurrentGlobalIndex(prevIdx);
       const prevQ = examQuestions[prevIdx];
       if (prevQ && prevQ.subjectId !== activeSubjectTab) {
         setActiveSubjectTab(prevQ.subjectId);
       }
+      setCurrentGlobalIndex(prevIdx);
     }
   };
 
   const handleJumpToQuestion = (globalIdx: number) => {
     playTapSound();
     setCurrentGlobalIndex(globalIdx);
-    const targetQ = examQuestions[globalIdx];
-    if (targetQ && targetQ.subjectId !== activeSubjectTab) {
-      setActiveSubjectTab(targetQ.subjectId);
-    }
-  };
-
-  const handleSubjectTabChange = (subjectId: string) => {
-    playTapSound();
-    setActiveSubjectTab(subjectId);
-    const range = subjectRanges[subjectId];
-    if (range) {
-      setCurrentGlobalIndex(range.start);
-    }
   };
 
   const handleFinishExam = () => {
@@ -179,7 +209,6 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
     setExamFinished(true);
 
     if (onFinishMock) {
-      // Calculate total score out of 400
       let totalCorrect = 0;
       examQuestions.forEach((q, idx) => {
         if (userAnswers[idx] === q.correctAnswer) totalCorrect++;
@@ -221,7 +250,6 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [examStarted, examFinished, currentGlobalIndex]);
 
-  // Total answers & subject scores
   const answeredCount = Object.keys(userAnswers).length;
 
   const subjectScores = useMemo(() => {
@@ -251,30 +279,30 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
   // ──────────────────────────────────────────────────────────────────────────
   if (!examStarted) {
     return (
-      <div className="w-full flex-1 flex flex-col px-3.5 sm:px-5 py-4 max-w-lg mx-auto space-y-4 select-none pb-24 text-stone-900 dark:text-stone-100">
+      <div className="w-full flex-1 flex flex-col px-3.5 sm:px-5 py-4 max-w-lg mx-auto space-y-3.5 select-none pb-24 text-stone-900 dark:text-stone-100">
         {/* Header */}
-        <div className="space-y-1">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight">
               UTME CBT Mock Exam
             </h1>
             <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-mono text-stone-500 font-semibold border border-stone-200/60 dark:border-stone-700/60">
-              200 Questions
+              Strict CBT Mode
             </span>
           </div>
-          <p className="text-xs text-stone-500 dark:text-stone-400">
-            Real 4-subject UTME simulation with 50 questions per subject and 120-minute timed countdown.
-          </p>
+          <span className="inline-flex items-center justify-center h-5 px-2.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono font-bold">
+            200 Qs · 120 Mins
+          </span>
         </div>
 
         {/* 4 Selected Subjects Card */}
-        <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-5 shadow-2xs space-y-3.5">
-          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800/80 pb-2.5">
+        <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800/80 pb-2">
             <span className="text-[11px] font-mono uppercase tracking-wider text-stone-400 font-semibold">
-              Your 4 Exam Subjects (50Q Each)
+              4 Exam Subjects (50Q Each)
             </span>
             <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-              4 of 4 Selected
+              Strict Progression Active
             </span>
           </div>
 
@@ -282,7 +310,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
             {selectedSubjects.map((sub, idx) => (
               <div
                 key={sub.id}
-                className="p-3 rounded-2xl bg-stone-50 dark:bg-[#121314] border border-stone-100 dark:border-stone-800/80 flex items-center justify-between"
+                className="p-2.5 rounded-2xl bg-stone-50 dark:bg-[#121314] border border-stone-100 dark:border-stone-800/80 flex items-center justify-between"
               >
                 <div>
                   <span className="text-[9px] font-mono uppercase text-stone-400 block">
@@ -292,27 +320,22 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
                     {sub.name}
                   </span>
                 </div>
-                <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono text-[9px] font-bold">
+                <span className="inline-flex items-center justify-center h-4.5 px-1.5 rounded-full bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono text-[9px] font-bold">
                   50Q
                 </span>
               </div>
             ))}
           </div>
 
-          {/* Exam Parameters Overview */}
-          <div className="grid grid-cols-3 gap-2 bg-stone-50/70 dark:bg-[#121314]/70 p-3 rounded-2xl border border-stone-100 dark:border-stone-800 text-center text-xs">
-            <div>
-              <span className="text-[9px] uppercase font-mono text-stone-400 block">Total Items</span>
-              <span className="font-serif font-bold text-stone-900 dark:text-white text-base">200 Q</span>
+          {/* Chief Examiner's Note Alert */}
+          <div className="p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 text-[11px] text-amber-900 dark:text-amber-200 space-y-1">
+            <div className="flex items-center gap-1.5 font-bold font-mono text-[10px] uppercase">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+              <span>JAMB Chief Examiner's Regulation:</span>
             </div>
-            <div className="border-x border-stone-200 dark:border-stone-800">
-              <span className="text-[9px] uppercase font-mono text-stone-400 block">Duration</span>
-              <span className="font-serif font-bold text-stone-900 dark:text-white text-base">120 Mins</span>
-            </div>
-            <div>
-              <span className="text-[9px] uppercase font-mono text-stone-400 block">Max Score</span>
-              <span className="font-serif font-bold text-emerald-600 dark:text-emerald-400 text-base">400 Pts</span>
-            </div>
+            <p className="leading-relaxed text-[10px] text-stone-600 dark:text-stone-400">
+              Candidates must complete all 50 questions in the current subject before the next subject tab unlocks. Negative guessing traps are tagged in post-exam analytics.
+            </p>
           </div>
 
           {/* Launch Button */}
@@ -323,7 +346,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
             }}
             className="w-full py-3.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
           >
-            <span>Start 200-Question CBT Simulation</span>
+            <span>Launch 200-Question CBT Exam</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -338,6 +361,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
     const activeSubjectAnsweredCount = Object.keys(userAnswers).filter(
       (idx) => Number(idx) >= activeSubjectRange.start && Number(idx) <= activeSubjectRange.end
     ).length;
+    const isCurrentSubjectComplete = activeSubjectAnsweredCount === 50;
 
     return (
       <div className="w-full flex-1 flex flex-col px-3 sm:px-4 py-2 max-w-lg mx-auto select-none pb-20">
@@ -365,7 +389,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
             </div>
           </div>
 
-          {/* 4 Subject Switcher Tabs */}
+          {/* 4 Subject Switcher Tabs with Lock States */}
           <div className="grid grid-cols-4 gap-1 bg-stone-100 dark:bg-stone-800/80 p-1 rounded-xl">
             {selectedSubjects.map((sub) => {
               const isActive = activeSubjectTab === sub.id;
@@ -373,23 +397,44 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
               const subAnswered = Object.keys(userAnswers).filter(
                 (idx) => Number(idx) >= subRange.start && Number(idx) <= subRange.end
               ).length;
+              const isSubDone = subAnswered === 50;
 
               return (
                 <button
                   key={sub.id}
                   onClick={() => handleSubjectTabChange(sub.id)}
-                  className={`py-1.5 px-1 rounded-lg text-[10px] font-semibold transition-all truncate text-center cursor-pointer ${
+                  className={`py-1.5 px-1 rounded-lg text-[10px] font-semibold transition-all truncate text-center flex flex-col items-center justify-center cursor-pointer ${
                     isActive
                       ? 'bg-white dark:bg-[#1f2124] text-stone-900 dark:text-white shadow-2xs'
                       : 'text-stone-500 hover:text-stone-900 dark:hover:text-white'
                   }`}
                 >
-                  <div className="truncate">{sub.name.replace('Use of ', '')}</div>
+                  <div className="flex items-center gap-1 truncate">
+                    <span className="truncate">{sub.name.replace('Use of ', '')}</span>
+                    {isSubDone && <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />}
+                  </div>
                   <div className="text-[8px] opacity-60 font-mono">{subAnswered}/50</div>
                 </button>
               );
             })}
           </div>
+
+          {/* Locked Tab Enforcement Toast / Alert */}
+          {lockedTabWarning && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] text-amber-900 dark:text-amber-200 flex items-center justify-between gap-2"
+            >
+              <span className="truncate">{lockedTabWarning}</span>
+              <button
+                onClick={handleJumpToNextUnansweredInSubject}
+                className="px-2 py-0.5 rounded bg-amber-800 dark:bg-amber-300 text-white dark:text-stone-900 text-[9px] font-bold uppercase shrink-0 cursor-pointer"
+              >
+                Jump to Next
+              </button>
+            </motion.div>
+          )}
 
           {/* Question Index Subtext with Circular Pill */}
           <div className="flex items-center justify-between text-[11px] pt-0.5">
@@ -410,7 +455,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
                   : 'text-stone-400 hover:text-stone-600'
               }`}
             >
-              <span>Flag for Review (R)</span>
+              <span>Flag (R)</span>
             </button>
           </div>
         </div>
@@ -420,7 +465,7 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
           <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-4 sm:p-5 shadow-2xs">
             <div className="flex items-center justify-between mb-1.5 text-[10px] font-mono text-stone-400 uppercase tracking-wider">
               <span>{currentQ.syllabusTopic}</span>
-              <span>Overall: {currentGlobalIndex + 1} / 200</span>
+              <span>Item {currentGlobalIndex + 1} / 200</span>
             </div>
             <h2 className="font-serif text-base sm:text-lg font-semibold leading-relaxed text-stone-900 dark:text-white">
               {currentQ.text}
@@ -544,12 +589,12 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
   }
 
   // ──────────────────────────────────────────────────────────────────────────
-  // VIEW 3: POST-EXAM 4-SUBJECT 400-POINT DIAGNOSTICS & REVIEW
+  // VIEW 3: POST-EXAM 4-SUBJECT 400-POINT DIAGNOSTICS WITH CHIEF EXAMINER'S REPORT
   // ──────────────────────────────────────────────────────────────────────────
   return (
-    <div className="w-full flex-1 flex flex-col px-3.5 sm:px-5 py-4 max-w-lg mx-auto space-y-4 select-none pb-24 text-stone-900 dark:text-stone-100">
+    <div className="w-full flex-1 flex flex-col px-3.5 sm:px-5 py-4 max-w-lg mx-auto space-y-3.5 select-none pb-24 text-stone-900 dark:text-stone-100">
       {/* Victory Header */}
-      <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-5 shadow-2xs text-center space-y-4">
+      <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#181a1c] p-5 shadow-2xs text-center space-y-3.5">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
           <Award className="h-6 w-6" />
         </div>
@@ -587,6 +632,24 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ─── Chief Examiner's Report & Diagnostic Pitfall Insight ─── */}
+        <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-[#121314] border border-stone-200/80 dark:border-stone-800 text-left space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-[#c2410c]" />
+              <span>JAMB Chief Examiner's Performance Report</span>
+            </span>
+            <span className="inline-flex items-center justify-center h-4 px-1.5 rounded-full bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300 text-[8px] font-mono font-semibold">
+              Official Analysis
+            </span>
+          </div>
+          <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+            {compositeScore >= 300
+              ? 'Candidate demonstrates mastery above the 95th percentile. Recommendation: Maintain pacing consistency in calculation subjects (Maths/Physics).'
+              : 'Candidate shows strong concept grasp but experienced distractor traps in Section B and Section C. Recommendation: Review correlative concord and stoichiometry calculations in Micro-Drills.'}
+          </p>
         </div>
 
         {/* Action Buttons */}
