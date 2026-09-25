@@ -1,0 +1,10 @@
+{
+  "category": "JAMB_UTME",
+  "subject": "PHYSICS",
+  "courseTitle": "JAMB Physics",
+  "moduleTitle": "Linear Motion and Uniform Acceleration",
+  "nodeOrder": 1,
+  "examYear": 2026,
+  "sourceBook": "New School Physics by M.W. Anyakoha",
+  "rawSyllabusText": "Linear motion describes movement along a straight line. Students should understand displacement, distance, speed, velocity, and acceleration, and interpret displacement-time and velocity-time graphs. For motion with constant acceleration, use the equations v = u + at, s = ut + 1/2at^2, and v^2 = u^2 + 2as, where u is initial velocity, v is final velocity, a is acceleration, t is time, and s is displacement. Acceleration due to gravity is approximately 9.8 m/s^2 near the Earth's surface. A displacement-time graph has gradient equal to velocity, while the gradient of a velocity-time graph gives acceleration and the area under it gives displacement. Questions should distinguish scalar quantities such as distance and speed from vector quantities such as displacement and velocity."
+}

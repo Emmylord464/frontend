@@ -1,0 +1,50 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run syllabus ingestion",
+			"type": "shell",
+			"command": "node ./node_modules/tsx/dist/cli.mjs ./ingest-syllabus.ts",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "Run NVIDIA syllabus ingestion",
+			"type": "shell",
+			"command": "node ./node_modules/tsx/dist/cli.mjs ./ingest-syllabus.ts",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "Run NVIDIA embedding test",
+			"type": "shell",
+			"command": "node ./node_modules/tsx/dist/cli.mjs ./ingest-syllabus.ts",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "Probe NVIDIA embed models",
+			"type": "shell",
+			"command": "node -e \"const { OpenAI } = require('openai'); const client = new OpenAI({ apiKey: process.env.NVIDIA_API_KEY, baseURL: 'https://integrate.api.nvidia.com/v1' }); const models = ['nvidia/nv-embed-v1','nvidia/nv-embedqa-e5-v5']; (async () => { for (const model of models) { try { const res = await client.embeddings.create({ model, input: ['hello world'] }); console.log('MODEL', model, 'OK', res.data[0].embedding.length); } catch (e) { console.log('MODEL', model, 'ERR', e.status, e.message); } } })();\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "Run NVIDIA embedding ingest",
+			"type": "shell",
+			"command": "node ./node_modules/tsx/dist/cli.mjs ./ingest-syllabus.ts",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		}
+	]
+}

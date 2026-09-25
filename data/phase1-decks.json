@@ -1,0 +1,168 @@
+[
+  {
+    "category": "JAMB_UTME",
+    "subject": "BIOLOGY",
+    "courseTitle": "JAMB Biology (High-Yield Track)",
+    "moduleTitle": "Node 1: Cellular Structure & Organelle Dynamics",
+    "historicalWeight": 9.2,
+    "isHighYield": true,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "VISUAL_INTUITION",
+        "questionText": "In a liver cell actively synthesizing proteins and detoxifying biochemical waste, which organelle is responsible for generating the cellular energy currency (ATP) required for these metabolic processes?",
+        "options": [
+          { "id": "a", "text": "Mitochondrion", "isCorrect": true },
+          { "id": "b", "text": "Ribosome", "isCorrect": false },
+          { "id": "c", "text": "Golgi Apparatus", "isCorrect": false },
+          { "id": "d", "text": "Endoplasmic Reticulum", "isCorrect": false }
+        ],
+        "explanation": "According to Ramalingam's Modern Biology, the mitochondrion is the powerhouse of the cell, site of cellular respiration, and producer of ATP."
+      },
+      {
+        "stepOrder": 2,
+        "cardType": "TACTILE_CHECK",
+        "questionText": "Which type of cell division reduces the chromosome number by half (from diploid 2n to haploid n) to produce gametes for sexual reproduction?",
+        "options": [
+          { "id": "a", "text": "Meiosis", "isCorrect": true },
+          { "id": "b", "text": "Mitosis", "isCorrect": false },
+          { "id": "c", "text": "Binary Fission", "isCorrect": false },
+          { "id": "d", "text": "Budding", "isCorrect": false }
+        ],
+        "explanation": "Meiosis is a reduction division occurring in germ cells, producing 4 haploid daughter cells (gametes) with half the parental genetic content."
+      }
+    ]
+  },
+  {
+    "category": "JAMB_UTME",
+    "subject": "BIOLOGY",
+    "courseTitle": "JAMB Biology (High-Yield Track)",
+    "moduleTitle": "Node 2: Mendelian Genetics & Inheritance",
+    "historicalWeight": 8.8,
+    "isHighYield": true,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "TACTILE_CHECK",
+        "questionText": "When two heterozygous tall pea plants (Tt) are crossed, what phenotypic ratio is expected in their offspring according to Mendel's law of segregation?",
+        "options": [
+          { "id": "a", "text": "3 Tall : 1 Short", "isCorrect": true },
+          { "id": "b", "text": "1 Tall : 1 Short", "isCorrect": false },
+          { "id": "c", "text": "1 Tall : 2 Medium : 1 Short", "isCorrect": false },
+          { "id": "d", "text": "All Tall", "isCorrect": false }
+        ],
+        "explanation": "Crossing Tt x Tt produces genotypes TT, Tt, Tt, tt. The phenotypic ratio is 3 Tall (TT, Tt, Tt) to 1 Short (tt)."
+      }
+    ]
+  },
+  {
+    "category": "JAMB_UTME",
+    "subject": "MATHEMATICS",
+    "courseTitle": "JAMB Mathematics (High-Yield Track)",
+    "moduleTitle": "Node 1: Trigonometric Ratios & Waves",
+    "historicalWeight": 5.59,
+    "isHighYield": true,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "VISUAL_INTUITION",
+        "questionText": "In a right-angled triangle representing a building shadow, if the angle of elevation to the sun is 30° and the adjacent shadow length is 10√3 meters, what is the height of the building (opposite side)?",
+        "options": [
+          { "id": "a", "text": "10 meters", "isCorrect": true },
+          { "id": "b", "text": "15 meters", "isCorrect": false },
+          { "id": "c", "text": "20 meters", "isCorrect": false },
+          { "id": "d", "text": "30 meters", "isCorrect": false }
+        ],
+        "explanation": "tan(30°) = Opposite / Adjacent. Since tan(30°) = 1/√3, height / 10√3 = 1/√3. Therefore, Height = 10 meters."
+      }
+    ]
+  },
+  {
+    "category": "JAMB_UTME",
+    "subject": "USE_OF_ENGLISH",
+    "courseTitle": "JAMB Use of English & Concord Rules",
+    "moduleTitle": "Proximate vs. Notional Concord",
+    "historicalWeight": 16.7,
+    "isHighYield": true,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "TACTILE_CHECK",
+        "questionText": "According to the rule of Proximate Concord in Dele Ashade's 'The Invisible Teacher', select the correct verb: 'Neither the Principal nor the teachers ___ present at the meeting.'",
+        "options": [
+          { "id": "a", "text": "were", "isCorrect": true },
+          { "id": "b", "text": "was", "isCorrect": false },
+          { "id": "c", "text": "is", "isCorrect": false },
+          { "id": "d", "text": "has been", "isCorrect": false }
+        ],
+        "explanation": "Under Proximate Concord ('either...or', 'neither...nor'), the verb agrees with the subject closest to it. Since 'teachers' is plural, 'were' is correct."
+      }
+    ]
+  },
+  {
+    "category": "JAMB_UTME",
+    "subject": "PHYSICS",
+    "courseTitle": "JAMB Physics (Quantitative & Concepts)",
+    "moduleTitle": "Linear Kinematics & Motion",
+    "historicalWeight": 8.5,
+    "isHighYield": true,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "TACTILE_CHECK",
+        "questionText": "A car accelerates uniformly from rest at 2 m/s² for 10 seconds. Using Anyakoha's formula v = u + at, what is its final velocity?",
+        "options": [
+          { "id": "a", "text": "20 m/s", "isCorrect": true },
+          { "id": "b", "text": "10 m/s", "isCorrect": false },
+          { "id": "c", "text": "40 m/s", "isCorrect": false },
+          { "id": "d", "text": "5 m/s", "isCorrect": false }
+        ],
+        "explanation": "From rest, initial velocity u = 0. Substituting into v = u + at gives v = 0 + (2 * 10) = 20 m/s."
+      }
+    ]
+  },
+  {
+    "category": "JAMB_UTME",
+    "subject": "CHEMISTRY",
+    "courseTitle": "JAMB Chemistry (High-Yield Track)",
+    "moduleTitle": "Mole Concept & Stoichiometry",
+    "historicalWeight": 8.1,
+    "isHighYield": true,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "VISUAL_INTUITION",
+        "questionText": "How many moles are present in 18 grams of water (H2O), given that its molar mass is 18 g/mol?",
+        "options": [
+          { "id": "a", "text": "1 mole", "isCorrect": true },
+          { "id": "b", "text": "2 moles", "isCorrect": false },
+          { "id": "c", "text": "18 moles", "isCorrect": false },
+          { "id": "d", "text": "36 moles", "isCorrect": false }
+        ],
+        "explanation": "The number of moles is mass divided by molar mass: 18 g / 18 g/mol = 1 mole."
+      }
+    ]
+  },
+  {
+    "category": "PROGRAMMING",
+    "subject": "PYTHON_101",
+    "courseTitle": "Python Foundations Track",
+    "moduleTitle": "Type Casting & Conversion",
+    "historicalWeight": 0.0,
+    "isHighYield": false,
+    "deck": [
+      {
+        "stepOrder": 1,
+        "cardType": "TACTILE_CHECK",
+        "questionText": "In Python, which function converts a string input '285' into an integer to evaluate a student's score?",
+        "options": [
+          { "id": "a", "text": "score = int('285')", "isCorrect": true },
+          { "id": "b", "text": "score = parseInteger('285')", "isCorrect": false },
+          { "id": "c", "text": "score = (int) '285'", "isCorrect": false },
+          { "id": "d", "text": "score = string.toInt('285')", "isCorrect": false }
+        ],
+        "explanation": "In Python, int() is the built-in type casting constructor used to convert valid numerical strings into integers."
+      }
+    ]
+  }
+]

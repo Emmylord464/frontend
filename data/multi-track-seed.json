@@ -1,0 +1,66 @@
+[
+  {
+    "category": "JAMB_UTME",
+    "subject": "USE_OF_ENGLISH",
+    "courseTitle": "JAMB Use of English & Literature",
+    "moduleTitle": "The Lekki Headmaster Character Analysis",
+    "stepOrder": 1,
+    "cardType": "VISUAL_INTUITION",
+    "questionText": "In 'The Lekki Headmaster' by Kabir Alabi Garba, what central dilemma does Mr. Adebepo Adewale (Bepo) face?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Choosing between emigrating to join his family in the UK ('Japa') or staying to fix Stardom Schools",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "Deciding whether to buy a new private car or rent an apartment in Lekki",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "Choosing whether to teach Physics or Mathematics at Stardom Schools",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "text": "Deciding to leave teaching to enter commercial politics",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Bepo's wife Seri is already in the UK and urges him to leave, creating the central moral conflict between personal family migration ('Japa') and commitment to educational standards in Nigeria."
+  },
+  {
+    "category": "PROGRAMMING",
+    "subject": "PYTHON_101",
+    "courseTitle": "Python Programming Foundations",
+    "moduleTitle": "Variables and Data Types",
+    "stepOrder": 1,
+    "cardType": "TACTILE_CHECK",
+    "questionText": "In Python, which snippet correctly converts a user input string '300' into an integer to calculate a target JAMB score?",
+    "options": [
+      {
+        "id": "a",
+        "text": "score = int('300')",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "score = parseInteger('300')",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "score = (int) '300'",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "text": "score = string.toInt('300')",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "In Python, `int()` is the built-in constructor function used to convert a string or float into an integer."
+  }
+]
