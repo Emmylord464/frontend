@@ -18,8 +18,6 @@ import { SubjectsView } from '@/components/Subjects/SubjectsView';
 import { DrillView } from '@/components/Drill/DrillView';
 import { AnalyticsView } from '@/components/Analytics/AnalyticsView';
 import { PlannerView } from '@/components/Planner/PlannerView';
-import { AdmissionsOracleView } from '@/components/Admissions/AdmissionsOracleView';
-import { MockExamView } from '@/components/Mock/MockExamView';
 import { StreakModal } from '@/components/Modals/StreakModal';
 import { ScholarIntroScreen } from '@/components/Intro/ScholarIntroScreen';
 import { AuthModal } from '@/components/Auth/AuthModal';
@@ -241,7 +239,7 @@ export default function ScholarApp() {
 
           {currentScreen === 'subjects' && (
             <div className="flex flex-col flex-1">
-              {/* Minimalist 200-Question JAMB Mock Exam Card */}
+              {/* Minimalist UTME CBT Mock Card */}
               <div className="px-4 pt-3 pb-1">
                 <button
                   onClick={() => {
@@ -255,17 +253,22 @@ export default function ScholarApp() {
                       <Timer className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <h3 className="font-serif text-sm sm:text-base font-bold text-stone-900 dark:text-white leading-tight">
-                          Strict 4-Subject CBT Mock
+                          UTME CBT
                         </h3>
-                        <span className="inline-flex items-center justify-center h-4.5 px-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[9px] font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/60">
+                        <span className="inline-flex items-center justify-center h-4.5 px-2.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[9px] font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/60">
                           200Q · 120M
                         </span>
                       </div>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                        50Q per subject · Tab locked · Examiner diagnostics
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="inline-flex items-center justify-center h-4 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[9px] font-mono text-stone-500 dark:text-stone-400 border border-stone-200/60 dark:border-stone-700/60">
+                          4 Subjects (50Q Each)
+                        </span>
+                        <span className="inline-flex items-center justify-center h-4 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[9px] font-mono text-stone-500 dark:text-stone-400 border border-stone-200/60 dark:border-stone-700/60">
+                          Strict Tab Locked
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-stone-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all" />
@@ -279,34 +282,6 @@ export default function ScholarApp() {
                 onUpdateDepartment={(dept) => handleUpdateProfile({ department: dept })}
               />
             </div>
-          )}
-
-          {currentScreen === 'admissions' && (
-            <AdmissionsOracleView
-              profile={profile}
-              onNavigateToDrill={(subjId) => {
-                setActiveDrillSubjectId(subjId);
-                handleNavigate('drill');
-              }}
-              onSelectCourseTrack={(track) =>
-                handleUpdateProfile({
-                  courseTrack: track,
-                  targetScore: Math.max(profile.targetScore, track.targetCutoff),
-                })
-              }
-            />
-          )}
-
-          {currentScreen === 'mock' && (
-            <MockExamView
-              profile={profile}
-              subjects={subjects}
-              onNavigateToSyllabus={() => handleNavigate('subjects')}
-              onLaunchTargetedDrill={(subjId) => {
-                setActiveDrillSubjectId(subjId);
-                handleNavigate('drill');
-              }}
-            />
           )}
 
           {currentScreen === 'drill' && (

@@ -238,3 +238,4 @@ export const HARD_JAMB_QUESTIONS: Question[] = [
     explanation: 'Repetition of the "s" consonant sound ("silver ship sliced... sapphire sea") is Alliteration, while describing sea as "sapphire" without "like/as" is Metaphor.',
   },
 ];
+

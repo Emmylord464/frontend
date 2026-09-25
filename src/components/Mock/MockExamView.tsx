@@ -252,19 +252,20 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
   if (!examStarted) {
     return (
       <div className="w-full flex-1 flex flex-col px-3.5 sm:px-5 py-4 max-w-lg mx-auto space-y-4 select-none pb-24 text-stone-900 dark:text-stone-100">
-        {/* Header */}
-        <div className="space-y-1">
+        {/* Header with Circular / Round Pill Subtitle */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
-              UTME CBT Mock Exam
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight">
+              UTME CBT
             </h1>
-            <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-mono text-stone-500 font-semibold border border-stone-200/60 dark:border-stone-700/60">
-              200 Questions
+            <span className="inline-flex items-center justify-center h-5 px-2.5 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-mono text-stone-600 dark:text-stone-300 font-semibold border border-stone-200/60 dark:border-stone-700/60">
+              4 Subjects · 200Q · 120M
             </span>
           </div>
-          <p className="text-xs text-stone-500 dark:text-stone-400">
-            Real 4-subject UTME simulation with 50 questions per subject and 120-minute timed countdown.
-          </p>
+
+          <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[9px] font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/60">
+            STRICT MODE
+          </span>
         </div>
 
         {/* 4 Selected Subjects Card */}
@@ -554,21 +555,34 @@ export const MockExamView: React.FC<MockExamViewProps> = ({
           <Award className="h-6 w-6" />
         </div>
 
-        <div className="space-y-1">
-          <div className="flex items-center justify-center gap-1.5">
-            <span className="text-xs font-serif font-bold text-stone-400 uppercase tracking-widest">
-              UTME Composite Score
+        <div className="space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-white">
+              UTME CBT
+            </h2>
+            <span className="inline-flex items-center justify-center h-5 px-2.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/60">
+              Composite / 400
             </span>
-            <span className="inline-flex items-center justify-center h-4.5 px-2 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[9px] font-mono font-bold">
-              Scaled / 400
+            <span className="inline-flex items-center justify-center h-5 px-2.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 text-[10px] font-mono font-bold border border-stone-200/60 dark:border-stone-700/60">
+              {Math.round((totalCorrect / 200) * 100)}% Accuracy
             </span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 dark:text-white">
-            {compositeScore} <span className="text-sm font-normal text-stone-400">/ 400</span>
-          </h2>
-          <p className="text-xs text-stone-500 dark:text-stone-400">
-            {totalCorrect} of 200 questions answered correctly ({Math.round((totalCorrect / 200) * 100)}% accuracy).
-          </p>
+
+          <div>
+            <span className="font-serif text-4xl sm:text-5xl font-bold text-stone-900 dark:text-white tracking-tight">
+              {compositeScore}
+              <span className="text-sm font-normal text-stone-400 font-mono"> / 400</span>
+            </span>
+          </div>
+
+          <div className="flex items-center justify-center gap-1.5 pt-0.5">
+            <span className="inline-flex items-center justify-center h-4.5 px-2 rounded-full bg-stone-100 dark:bg-stone-800 text-[9px] font-mono text-stone-500 dark:text-stone-400 border border-stone-200/60 dark:border-stone-700/60">
+              {totalCorrect} of 200 Questions Correct
+            </span>
+            <span className="inline-flex items-center justify-center h-4.5 px-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[9px] font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/60">
+              Verified Merit
+            </span>
+          </div>
         </div>
 
         {/* 4 Subjects Breakdown Grid */}

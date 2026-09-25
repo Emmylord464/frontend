@@ -83,7 +83,6 @@ export function generateDynamicVariation(subjectId: string, seed: number): Quest
       const a = 3;
       const b = 2 * (1 + (seed % 3));
       const upper = 2 + (seed % 3);
-      // Integral = a(upper^3)/3 + b(upper^2)/2 = upper^3 + (b/2)*upper^2
       const correctVal = Math.pow(upper, 3) + (b / 2) * Math.pow(upper, 2);
       return {
         id: `dyn-math-calc-${seed}`,
@@ -106,7 +105,6 @@ export function generateDynamicVariation(subjectId: string, seed: number): Quest
       // Coordinate Geometry: Perpendicular Gradient
       const c1 = 2 + (seed % 5);
       const c2 = 3 + (seed % 4);
-      // Line: c1*x + c2*y = constant => m1 = -c1/c2 => m_perp = c2/c1
       return {
         id: `dyn-math-geom-${seed}`,
         subjectId: 'maths',
@@ -153,9 +151,8 @@ export function generateDynamicVariation(subjectId: string, seed: number): Quest
 
   // ─── PHYSICS DYNAMIC VARIATIONS ──────────────────────────────────────────
   if (subjectId === 'physics') {
-    const type = seed % 3;
+    const type = seed % 2;
     if (type === 0) {
-      // Projectile max height: H = (u * sin(30))^2 / 20 = (0.5u)^2 / 20
       const speeds = [20, 30, 40, 50, 60];
       const u = speeds[seed % speeds.length];
       const hMax = Math.round(Math.pow(u * 0.5, 2) / 20);
@@ -176,11 +173,10 @@ export function generateDynamicVariation(subjectId: string, seed: number): Quest
         correctAnswer: 'A',
         explanation: `H_max = (u · sin 30°)² / (2g) = (${u} · 0.5)² / 20 = (${u * 0.5})² / 20 = ${hMax} m.`,
       };
-    } else if (type === 1) {
-      // Electric Circuit: Terminal Potential Difference
-      const emf = 6 + (seed % 4) * 2; // 6, 8, 10, 12 V
-      const r = 2; // 2 ohms
-      const R = 6 + (seed % 3) * 2; // 6, 8, 10 ohms
+    } else {
+      const emf = 6 + (seed % 4) * 2;
+      const r = 2;
+      const R = 6 + (seed % 3) * 2;
       const I = emf / (R + r);
       const vTerm = (I * R).toFixed(1);
       return {
@@ -205,39 +201,35 @@ export function generateDynamicVariation(subjectId: string, seed: number): Quest
 
   // ─── CHEMISTRY DYNAMIC VARIATIONS ────────────────────────────────────────
   if (subjectId === 'chemistry') {
-    const type = seed % 2;
-    if (type === 0) {
-      // Faraday Law mass calculation: Q = I * t, mass = (Q * 64) / (2 * 96500)
-      const current = 2 + (seed % 3); // 2, 3, 4 A
-      const time = 965; // seconds
-      const Q = current * time;
-      const mass = ((Q * 64) / (2 * 96500)).toFixed(2);
-      return {
-        id: `dyn-chem-far-${seed}`,
-        subjectId: 'chemistry',
-        subjectName: 'Chemistry',
-        year: `JAMB ${year} UTME`,
-        syllabusTopic: 'Electrochemistry: Faraday\'s Laws',
-        difficulty: 'Hard',
-        text: `Calculate the mass of copper deposited at the cathode when a steady current of ${current}.0 A is passed through aqueous CuSO₄ for ${time} seconds. [Cu = 64, 1F = 96,500 C, Cu²⁺ + 2e⁻ → Cu]`,
-        options: [
-          { id: 'A', text: `${mass} g` },
-          { id: 'B', text: `${(parseFloat(mass) * 2).toFixed(2)} g` },
-          { id: 'C', text: `${(parseFloat(mass) / 2).toFixed(2)} g` },
-          { id: 'D', text: `${(parseFloat(mass) * 10).toFixed(2)} g` },
-        ],
-        correctAnswer: 'A',
-        explanation: `Q = I · t = ${current} × ${time} = ${Q} C. Moles of e⁻ = ${Q}/96500. Since 1 mol Cu requires 2 mol e⁻: Mass = (${Q} × 64) / (2 × 96500) = ${mass} g.`,
-      };
-    }
+    const current = 2 + (seed % 3);
+    const time = 965;
+    const Q = current * time;
+    const mass = ((Q * 64) / (2 * 96500)).toFixed(2);
+    return {
+      id: `dyn-chem-far-${seed}`,
+      subjectId: 'chemistry',
+      subjectName: 'Chemistry',
+      year: `JAMB ${year} UTME`,
+      syllabusTopic: 'Electrochemistry: Faraday\'s Laws',
+      difficulty: 'Hard',
+      text: `Calculate the mass of copper deposited at the cathode when a steady current of ${current}.0 A is passed through aqueous CuSO₄ for ${time} seconds. [Cu = 64, 1F = 96,500 C, Cu²⁺ + 2e⁻ → Cu]`,
+      options: [
+        { id: 'A', text: `${mass} g` },
+        { id: 'B', text: `${(parseFloat(mass) * 2).toFixed(2)} g` },
+        { id: 'C', text: `${(parseFloat(mass) / 2).toFixed(2)} g` },
+        { id: 'D', text: `${(parseFloat(mass) * 10).toFixed(2)} g` },
+      ],
+      correctAnswer: 'A',
+      explanation: `Q = I · t = ${current} × ${time} = ${Q} C. Moles of e⁻ = ${Q}/96500. Since 1 mol Cu requires 2 mol e⁻: Mass = (${Q} × 64) / (2 × 96500) = ${mass} g.`,
+    };
   }
 
   // ─── ECONOMICS DYNAMIC VARIATIONS ────────────────────────────────────────
   if (subjectId === 'economics') {
-    const p1 = 100 * (2 + (seed % 3)); // 200, 300, 400
-    const p2 = p1 * 1.25; // 25% increase
+    const p1 = 100 * (2 + (seed % 3));
+    const p2 = p1 * 1.25;
     const q1 = 1000;
-    const q2 = 1000 - 100 * (2 + (seed % 4)); // 800, 700, 600
+    const q2 = 1000 - 100 * (2 + (seed % 4));
     const pctChangeQ = ((q1 - q2) / q1) * 100;
     const pctChangeP = 25;
     const elasticity = (pctChangeQ / pctChangeP).toFixed(2);
@@ -263,7 +255,7 @@ export function generateDynamicVariation(subjectId: string, seed: number): Quest
 
   // ─── FINANCIAL ACCOUNTING DYNAMIC VARIATIONS ─────────────────────────────
   if (subjectId === 'accounting') {
-    const cost = 100000 * (3 + (seed % 6)); // 300k, 400k, 500k, 600k
+    const cost = 100000 * (3 + (seed % 6));
     const scrap = 50000;
     const years = 5;
     const dep = (cost - scrap) / years;
@@ -331,7 +323,6 @@ export function getFreshQuestionsForSubject(
       const randomized = randomizeQuestionOptions(dynQ);
       selectedQuestions.push(randomized);
     } else {
-      // Fallback clone with re-shuffled options from static pool
       const base = pool[dynSeed % pool.length] || allStaticQuestions[0];
       if (base) {
         selectedQuestions.push(randomizeQuestionOptions(base));

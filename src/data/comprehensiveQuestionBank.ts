@@ -6,9 +6,7 @@ import { Question } from '../types';
  * Covers core syllabus topics with exact options, keys, and deep explanations.
  */
 export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
-  // ──────────────────────────────────────────────────────────────────────────
-  // 1. USE OF ENGLISH (Lexis, Structure, Concord, Idioms, Antonyms, Oral Forms)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 1. USE OF ENGLISH ───────────────────────────────────────────────────
   {
     id: 'eng-auth-1',
     subjectId: 'english',
@@ -111,44 +109,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'Negative adverbs of time ("Hardly", "Scarcely", "Barely") at the beginning of a clause trigger auxiliary-subject inversion: "Hardly had [subject] [past participle]...".',
   },
-  {
-    id: 'eng-auth-7',
-    subjectId: 'english',
-    subjectName: 'Use of English',
-    year: 'JAMB 2020 Past UTME',
-    syllabusTopic: 'Prepositional Idioms',
-    difficulty: 'Medium',
-    text: 'The new regulations are completely at variance ________ the provisions of the federal constitution.',
-    options: [
-      { id: 'A', text: 'with' },
-      { id: 'B', text: 'to' },
-      { id: 'C', text: 'from' },
-      { id: 'D', text: 'against' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'The standard preposition following "at variance" is "with" ("at variance with something").',
-  },
-  {
-    id: 'eng-auth-8',
-    subjectId: 'english',
-    subjectName: 'Use of English',
-    year: 'JAMB 2024 Past UTME',
-    syllabusTopic: 'Vowel Contrasts / Minimal Pairs',
-    difficulty: 'Medium',
-    text: 'Which of the following words contains the vowel sound /iː/ as in "fleet"?',
-    options: [
-      { id: 'A', text: 'Key' },
-      { id: 'B', text: 'Sit' },
-      { id: 'C', text: 'Threat' },
-      { id: 'D', text: 'Great' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'In the word "Key" (/kiː/), the "ey" produces the long close front unrounded vowel /iː/.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 2. MATHEMATICS (Calculus, Trigonometry, Matrices, Coordinate Geometry)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 2. MATHEMATICS ───────────────────────────────────────────────────────
   {
     id: 'math-auth-1',
     subjectId: 'maths',
@@ -200,61 +162,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'A singular matrix has determinant = 0. Det = (2)(6) - (4)(k) = 12 - 4k = 0 ⇒ 4k = 12 ⇒ k = 3.',
   },
-  {
-    id: 'math-auth-4',
-    subjectId: 'maths',
-    subjectName: 'Mathematics',
-    year: 'JAMB 2024 Past UTME',
-    syllabusTopic: 'Definite Integration',
-    difficulty: 'Hard',
-    text: 'Evaluate the definite integral ∫ from 0 to 2 of (3x² - 4x + 1) dx.',
-    options: [
-      { id: 'A', text: '2' },
-      { id: 'B', text: '4' },
-      { id: 'C', text: '6' },
-      { id: 'D', text: '0' },
-    ],
-    correctAnswer: 'A',
-    explanation: '∫(3x² - 4x + 1)dx = [x³ - 2x² + x] from 0 to 2 = (2³ - 2(2²) + 2) - 0 = (8 - 8 + 2) = 2.',
-  },
-  {
-    id: 'math-auth-5',
-    subjectId: 'maths',
-    subjectName: 'Mathematics',
-    year: 'JAMB 2023 Past UTME',
-    syllabusTopic: 'Permutations & Combinations',
-    difficulty: 'Hard',
-    text: 'In how many distinct ways can the letters of the word "EXAMINATION" be arranged?',
-    options: [
-      { id: 'A', text: '4,989,600' },
-      { id: 'B', text: '39,916,800' },
-      { id: 'C', text: '1,663,200' },
-      { id: 'D', text: '9,979,200' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'Total letters = 11. Repeated letters: A (2), I (2), N (2). Arrangements = 11! / (2! · 2! · 2!) = 39,916,800 / 8 = 4,989,600.',
-  },
-  {
-    id: 'math-auth-6',
-    subjectId: 'maths',
-    subjectName: 'Mathematics',
-    year: 'JAMB 2021 Past UTME',
-    syllabusTopic: 'Coordinate Geometry: Perpendicular Lines',
-    difficulty: 'Medium',
-    text: 'Find the gradient of a line perpendicular to the line 3x + 2y - 7 = 0.',
-    options: [
-      { id: 'A', text: '2/3' },
-      { id: 'B', text: '-3/2' },
-      { id: 'C', text: '-2/3' },
-      { id: 'D', text: '3/2' },
-    ],
-    correctAnswer: 'A',
-    explanation: '2y = -3x + 7 ⇒ y = (-3/2)x + 7/2 ⇒ m₁ = -3/2. For perpendicular lines, m₂ = -1/m₁ = -1/(-3/2) = 2/3.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 3. PHYSICS (Mechanics, Electricity, Optics, Waves, Modern Physics)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 3. PHYSICS ───────────────────────────────────────────────────────────
   {
     id: 'phys-auth-1',
     subjectId: 'physics',
@@ -289,44 +198,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'Total circuit resistance R_total = 8 + 2 = 10Ω. Current I = E / R_total = 12 / 10 = 1.2 A. Terminal p.d. V = I · R = 1.2 · 8 = 9.6 V.',
   },
-  {
-    id: 'phys-auth-3',
-    subjectId: 'physics',
-    subjectName: 'Physics',
-    year: 'JAMB 2024 Past UTME',
-    syllabusTopic: 'Modern Physics: Photoelectric Effect',
-    difficulty: 'Hard',
-    text: 'The work function of a metal is 3.2 × 10⁻¹⁹ J. If light of frequency 1.0 × 10¹⁵ Hz shines on it, calculate the maximum kinetic energy of emitted photoelectrons. [h = 6.63 × 10⁻³⁴ J·s]',
-    options: [
-      { id: 'A', text: '3.43 × 10⁻¹⁹ J' },
-      { id: 'B', text: '6.63 × 10⁻¹⁹ J' },
-      { id: 'C', text: '9.83 × 10⁻¹⁹ J' },
-      { id: 'D', text: '0 J' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'E_photon = h·f = (6.63 × 10⁻³⁴)(1.0 × 10¹⁵) = 6.63 × 10⁻¹⁹ J. K_max = E_photon - W₀ = (6.63 - 3.2) × 10⁻¹⁹ = 3.43 × 10⁻¹⁹ J.',
-  },
-  {
-    id: 'phys-auth-4',
-    subjectId: 'physics',
-    subjectName: 'Physics',
-    year: 'JAMB 2022 Past UTME',
-    syllabusTopic: 'Optics: Refraction & Critical Angle',
-    difficulty: 'Medium',
-    text: 'If the critical angle for a glass-air interface is 42°, calculate the refractive index of the glass.',
-    options: [
-      { id: 'A', text: '1.49' },
-      { id: 'B', text: '1.33' },
-      { id: 'C', text: '1.67' },
-      { id: 'D', text: '0.67' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'Refractive index n = 1 / sin(C) = 1 / sin(42°) ≈ 1 / 0.6691 ≈ 1.494.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 4. CHEMISTRY (Stoichiometry, Electrochemistry, Organic Chemistry, Equilibrium)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 4. CHEMISTRY ─────────────────────────────────────────────────────────
   {
     id: 'chem-auth-1',
     subjectId: 'chemistry',
@@ -361,27 +234,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'Q = I · t = 2.0 × 965 = 1930 C. Moles of electrons = 1930 / 96500 = 0.02 mol e⁻. Since Cu²⁺ requires 2e⁻, moles of Cu = 0.02 / 2 = 0.01 mol. Mass = 0.01 × 64 = 0.64 g.',
   },
-  {
-    id: 'chem-auth-3',
-    subjectId: 'chemistry',
-    subjectName: 'Chemistry',
-    year: 'JAMB 2022 Past UTME',
-    syllabusTopic: 'Chemical Equilibrium & Le Chatelier',
-    difficulty: 'Hard',
-    text: 'For the exothermic reaction: N₂(g) + 3H₂(g) ⇌ 2NH₃(g) (ΔH = -92 kJ/mol), which change will INCREASE the equilibrium yield of NH₃?',
-    options: [
-      { id: 'A', text: 'Increasing pressure and decreasing temperature' },
-      { id: 'B', text: 'Decreasing pressure and increasing temperature' },
-      { id: 'C', text: 'Adding an iron catalyst at constant volume' },
-      { id: 'D', text: 'Removing N₂ from the reactor system' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'Higher pressure favors the side with fewer gas moles (4 moles → 2 moles). Lower temperature favors the forward exothermic reaction.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 5. BIOLOGY (Genetics, Physiology, Ecology, Evolution)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 5. BIOLOGY ───────────────────────────────────────────────────────────
   {
     id: 'bio-auth-1',
     subjectId: 'biology',
@@ -399,27 +253,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'Sons receive the Y chromosome from the father. The mother passes Xᴴ (normal son) to 50% of sons and Xʰ (hemophiliac son) to 50% of sons.',
   },
-  {
-    id: 'bio-auth-2',
-    subjectId: 'biology',
-    subjectName: 'Biology',
-    year: 'JAMB 2023 Past UTME',
-    syllabusTopic: 'Excretion & Osmoregulation',
-    difficulty: 'Medium',
-    text: 'In the mammalian nephron, where does ultrafiltration occur under high hydrostatic pressure?',
-    options: [
-      { id: 'A', text: 'Glomerulus within Bowman\'s capsule' },
-      { id: 'B', text: 'Loop of Henle descending limb' },
-      { id: 'C', text: 'Proximal convoluted tubule' },
-      { id: 'D', text: 'Distal collecting duct' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'Ultrafiltration takes place in the renal corpuscle (between the glomerulus and Bowman\'s capsule) due to the afferent-efferent diameter differential.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 6. ECONOMICS (Price Elasticity, National Income, Public Finance)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 6. ECONOMICS ─────────────────────────────────────────────────────────
   {
     id: 'econ-auth-1',
     subjectId: 'economics',
@@ -437,27 +272,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: '%ΔQ = (1000 - 700)/1000 × 100 = 30%. %ΔP = (250 - 200)/200 × 100 = 25%. Price Elasticity of Demand = 30% / 25% = 1.20.',
   },
-  {
-    id: 'econ-auth-2',
-    subjectId: 'economics',
-    subjectName: 'Economics',
-    year: 'JAMB 2023 Past UTME',
-    syllabusTopic: 'National Income Accounting',
-    difficulty: 'Hard',
-    text: 'Which of the following equals Gross National Product (GNP) at Market Prices?',
-    options: [
-      { id: 'A', text: 'GDP at market prices + Net Factor Income from Abroad (NFIA)' },
-      { id: 'B', text: 'GDP at factor cost - Depreciation allowance' },
-      { id: 'C', text: 'National Income - Indirect business taxes' },
-      { id: 'D', text: 'Personal Disposable Income + Undistributed profits' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'GNP measures output produced by citizens domestically and abroad: GNP = GDP + Net Property Income / Factor Income from Abroad (NFIA).',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 7. GOVERNMENT (Constitutional History, Federalism, Public Admin)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 7. GOVERNMENT ────────────────────────────────────────────────────────
   {
     id: 'govt-auth-1',
     subjectId: 'government',
@@ -475,27 +291,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'The Clifford Constitution introduced the elective principle, providing 4 elected seats (3 for Lagos, 1 for Calabar) in the Legislative Council.',
   },
-  {
-    id: 'govt-auth-2',
-    subjectId: 'government',
-    subjectName: 'Government',
-    year: 'JAMB 2023 Past UTME',
-    syllabusTopic: 'Federalism & Exclusive Legislative List',
-    difficulty: 'Medium',
-    text: 'Under the 1999 Federal Constitution of Nigeria, which item is in the EXCLUSIVE Legislative List reserved for the National Assembly?',
-    options: [
-      { id: 'A', text: 'Defense, Currency, and External Affairs' },
-      { id: 'B', text: 'Higher education and agricultural extension' },
-      { id: 'C', text: 'Collection of local tenement rates' },
-      { id: 'D', text: 'Public health and sanitation inspectorship' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'Defense, national currency, customs, and diplomatic external affairs are reserved exclusively for the Federal Government.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 8. LITERATURE IN ENGLISH (Literary Devices, African & Non-African Prose)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 8. LITERATURE IN ENGLISH ─────────────────────────────────────────────
   {
     id: 'lit-auth-1',
     subjectId: 'literature',
@@ -513,27 +310,8 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     correctAnswer: 'A',
     explanation: 'Metonymy is substituting the name of an attribute or closely associated object ("the crown") for that of the thing meant (the monarch or sovereignty).',
   },
-  {
-    id: 'lit-auth-2',
-    subjectId: 'literature',
-    subjectName: 'Literature in English',
-    year: 'JAMB 2023 Past UTME',
-    syllabusTopic: 'Dramatic Terms: Dramatic Irony',
-    difficulty: 'Medium',
-    text: 'A situation in a drama where the audience possesses crucial knowledge of which the characters on stage are unaware is termed:',
-    options: [
-      { id: 'A', text: 'Dramatic irony' },
-      { id: 'B', text: 'Tragic flaw (Hamartia)' },
-      { id: 'C', text: 'Catharsis' },
-      { id: 'D', text: 'Deus ex machina' },
-    ],
-    correctAnswer: 'A',
-    explanation: 'Dramatic irony occurs when the audience understands the implications and meaning of a situation on stage while the character is oblivious.',
-  },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 9. COMMERCE (Trade, Insurance, Banking, Stock Exchange)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 9. COMMERCE ──────────────────────────────────────────────────────────
   {
     id: 'comm-auth-1',
     subjectId: 'commerce',
@@ -552,9 +330,7 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     explanation: 'A Bill of Lading is a legally binding negotiable document of title, receipt of cargo, and contract between shipper and ocean carrier.',
   },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 10. FINANCIAL ACCOUNTING (Bookkeeping, Depreciation, Partnership)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 10. FINANCIAL ACCOUNTING ─────────────────────────────────────────────
   {
     id: 'acc-auth-1',
     subjectId: 'accounting',
@@ -573,9 +349,7 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     explanation: 'Annual Depreciation = (Cost - Scrap Value) / Useful Life = (₦500,000 - ₦50,000) / 5 = ₦450,000 / 5 = ₦90,000.',
   },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 11. CHRISTIAN RELIGIOUS STUDIES (Old & New Testament, Epistles)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 11. CHRISTIAN RELIGIOUS STUDIES ──────────────────────────────────────
   {
     id: 'crs-auth-1',
     subjectId: 'crs',
@@ -594,9 +368,7 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     explanation: 'Amos (Amos 8:4-6) fiercely attacked commercial dishonesty, false balances, and the exploitation of the poor and needy.',
   },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 12. ISLAMIC RELIGIOUS STUDIES (Tafsir, Hadith, Fiqh, Islamic History)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 12. ISLAMIC RELIGIOUS STUDIES ────────────────────────────────────────
   {
     id: 'irs-auth-1',
     subjectId: 'irs',
@@ -615,9 +387,7 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     explanation: 'Under Islamic jurisprudence (Fiqh), the statutory rate of Zakat payable on liquid monetary wealth and merchant inventory is 2.5% (1/40).',
   },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 13. GEOGRAPHY (Physical Geography, Map Reading, Climatology)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 13. GEOGRAPHY ────────────────────────────────────────────────────────
   {
     id: 'geo-auth-1',
     subjectId: 'geography',
@@ -636,9 +406,7 @@ export const COMPREHENSIVE_JAMB_QUESTIONS: Question[] = [
     explanation: 'Reducing linear dimensions by 1/2 doubles the scale denominator: 50,000 × 2 = 100,000. New RF = 1:100,000.',
   },
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // 14. AGRICULTURAL SCIENCE (Soil Science, Crop Production, Animal Nutrition)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── 14. AGRICULTURAL SCIENCE ─────────────────────────────────────────────
   {
     id: 'agric-auth-1',
     subjectId: 'agric',
