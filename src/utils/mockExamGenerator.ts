@@ -178,8 +178,8 @@ export function generate50QuestionsForSubject(
         syllabusTopic: topic,
         difficulty: i % 4 === 0 ? 'Hard' : i % 2 === 0 ? 'Medium' : 'Easy',
         text: `[JAMB ${year} UTME · ${topic}]\n${baseQ?.text || `Evaluate the primary outcome regarding ${topic} under standard UTME conditions.`}`,
-        options: baseQ?.options?.map((o, idx) => ({
-          id: (['A', 'B', 'C', 'D'] as const)[idx],
+        options: baseQ?.options?.map((o: { id: string; text: string }, idx: number) => ({
+          id: (['A', 'B', 'C', 'D'] as const)[idx] || 'A',
           text: o.text || `Option ${( ['A', 'B', 'C', 'D'] as const)[idx]} for ${topic}`,
         })) || [
           { id: 'A', text: `Primary standard principle of ${topic}` },
