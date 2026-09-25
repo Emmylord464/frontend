@@ -334,3 +334,27 @@ export function getFreshQuestionsForSubject(
   return selectedQuestions;
 }
 
+/**
+ * 4-Subject Mixed Cross-Discipline Drill Set (40 Questions in Total = 10Q per subject)
+ */
+export function get4SubjectMixedDrill(
+  subjectIds: string[] = ['english', 'maths', 'physics', 'chemistry'],
+  questionsPerSubject: number = 10
+): { questions: Question[]; subjectOffsets: { subjectId: string; startIndex: number; count: number }[] } {
+  const allQuestions: Question[] = [];
+  const subjectOffsets: { subjectId: string; startIndex: number; count: number }[] = [];
+
+  subjectIds.forEach((subjId) => {
+    const startIndex = allQuestions.length;
+    const qs = getFreshQuestionsForSubject(subjId, questionsPerSubject);
+    allQuestions.push(...qs);
+    subjectOffsets.push({
+      subjectId: subjId,
+      startIndex,
+      count: qs.length,
+    });
+  });
+
+  return { questions: allQuestions, subjectOffsets };
+}
+
